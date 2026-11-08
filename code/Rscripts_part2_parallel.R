@@ -15,7 +15,7 @@ dir()
 #*packages for parallel and rand
 #************************************************
 
-needed.packages <- c("foreach", "doParallel","parallel","tictoc","pracma")
+needed.packages <- c("foreach", "doParallel","parallel","tictoc","pracma","microbenchmark","parallely")
 new.packages <- needed.packages[!(needed.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 
@@ -24,9 +24,11 @@ library(doParallel)
 library(parallel)
 library(tictoc)
 library(pracma)
+library(parallelly)
 
 
-n_cores=parallel::detectCores() 
+n_cores_server=parallel::detectCores() # How many CPUs does the machine expose?"
+n_cores=availableCores()               # How many CPUs am I actually allowed/expected to use?
 
 #************************************************
 # for loop

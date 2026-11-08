@@ -2,10 +2,15 @@
 #*prepare framework
 #************************************************
 
-if (Sys.info()["sysname"]=="Windows"){
-  setwd("C:/Users/janez/OneDrive - Rudolfovo – znanstveno in tehnološko središče Novo Mesto/Documents/UL FS/Projekti/2022/EuroCC II/Izobrazecanja UL/Parallel R May 24/parallel-r-may-2024")
-} else 
-  setwd("/home/rstudio/parallel-r-may-2024")
+if (Sys.info()[["sysname"]] == "Windows") {
+  path <- "C:/Users/janez/OneDrive - Rudolfovo – znanstveno in tehnološko središče Novo Mesto/Documents/UL FS/Projekti/2022/EuroCC II/Izobrazecanja UL/Parallel R May 24/parallel-r-may-2024"
+} else {
+  path <- "/home/rstudio/parallel-R-nov-26"
+}
+
+if (!identical(getwd(), path)) {
+  setwd(path)
+}
 
 dir()
 
