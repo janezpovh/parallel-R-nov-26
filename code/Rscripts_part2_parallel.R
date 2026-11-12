@@ -235,3 +235,20 @@ if (Sys.info()["sysname"]=="Linux"){
   }
  times<-microbenchmark::microbenchmark(mc_lapply_f(10,100,10),l_lapply_f(10,100,10),times = 2)
 }
+
+
+# how number of cores influences speed-up
+
+g <- function(...) {
+  sum(rnorm(1e7))
+}
+
+for (p in 1:8) {
+  t <- system.time(
+    mclapply(1:25, g, mc.cores = p)
+  )
+  
+  cat("workers =", p,
+      " elapsed =", t["elapsed"], "\n")
+}
+
