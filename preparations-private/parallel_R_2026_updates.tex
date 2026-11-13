@@ -1,0 +1,442 @@
+% Parallel R course: 2026 update module
+% Insert this file after the existing single-node parallel section and before Rcpp.
+% Requires: listings, xcolor, hyperref. Optional: booktabs.
+
+\section{Modern parallel R workflows}
+
+\begin{frame}{Learning objectives for the updated module}
+\begin{itemize}
+  \item Choose an appropriate execution model: sequential, vectorised, process-based, scheduler-based, or GPU.
+  \item Use the \texttt{future} ecosystem for portable parallel code.
+  \item Run reproducible parallel simulations.
+  \item Scale the same computation from a workstation to a Slurm cluster.
+  \item Recognise when faster I/O or an analytical database is better than adding workers.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{A modern performance workflow}
+\begin{enumerate}
+  \item Measure the real bottleneck: CPU, memory, I/O, or communication.
+  \item Improve the algorithm and data representation.
+  \item Use vectorised or compiled routines.
+  \item Parallelise only sufficiently large, independent tasks.
+  \item Scale across nodes only when one node is insufficient.
+  \item Verify correctness, reproducibility, memory use, and speedup.
+\end{enumerate}
+\vspace{0.2cm}
+\alert{Parallel execution is not automatically faster.} Startup, data transfer, serialisation, and load imbalance can dominate short tasks.
+\end{frame}
+
+\begin{frame}[fragile]{How many workers should I use?}
+\begin{block}{Use the resources available to the current process}
+\begin{lstlisting}[language=R]
+library(parallelly)
+
+availableCores()       # respects many scheduler/container limits
+availableWorkers()     # workers visible to the current R session
+
+detectCores()          # hardware/logical CPUs, not always usable CPUs
+\end{lstlisting}
+\end{block}
+\begin{itemize}
+  \item Logical processors are not necessarily equally fast on hybrid CPUs.
+  \item On an HPC system, use the CPUs granted by the scheduler, not the whole node.
+  \item Leave capacity for the operating system on an interactive workstation.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Processes, threads, and oversubscription}
+\begin{itemize}
+  \item \textbf{R workers} are usually separate processes with separate memory.
+  \item BLAS, OpenMP, \texttt{data.table}, and compiled libraries may create additional threads.
+  \item Eight R workers with eight BLAS threads each can create up to 64 runnable threads.
+  \item Oversubscription often reduces performance and makes timings unstable.
+\end{itemize}
+\vspace{0.2cm}
+Practical rule: when using many R workers, initially set threaded numerical libraries to one thread per worker, benchmark, and then tune.
+\end{frame}
+
+\begin{frame}[fragile]{Benchmark elapsed time and memory}
+\begin{block}{Prefer representative workloads}
+\begin{lstlisting}[language=R]
+library(bench)
+
+x <- runif(1e6)
+bench::mark(
+  loop = {
+    ans <- 0
+    for (i in seq_along(x)) ans <- ans + x[[i]]
+    ans
+  },
+  vectorised = sum(x),
+  check = TRUE
+)
+\end{lstlisting}
+\end{block}
+\begin{itemize}
+  \item Compare results, not just timings.
+  \item Report elapsed time, memory allocation, workload size, worker count, and hardware.
+\end{itemize}
+\end{frame}
+
+\subsection{The future ecosystem}
+
+\begin{frame}{Why teach the \texttt{future} ecosystem?}
+\begin{itemize}
+  \item It separates \textbf{what} should be evaluated from \textbf{where and how} it runs.
+  \item The computational code can remain stable while the execution plan changes.
+  \item Common front ends include \texttt{future.apply}, \texttt{furrr}, and \texttt{doFuture}.
+  \item Backends cover local processes, remote workers, and scheduler-managed HPC jobs.
+\end{itemize}
+\vspace{0.2cm}
+Keep \texttt{parallel} and \texttt{foreach} in the course as foundations and legacy interfaces, but use \texttt{future} as the main portable workflow.
+\end{frame}
+
+\begin{frame}[fragile]{From sequential to parallel with one change}
+\begin{block}{Portable parallel map}
+\begin{lstlisting}[language=R]
+library(future)
+library(future.apply)
+
+f <- function(i) {
+  x <- rnorm(2e6)
+  c(task = i, statistic = mean(exp(x)))
+}
+
+plan(sequential)
+a <- future_lapply(1:8, f, future.seed = TRUE)
+
+plan(multisession, workers = 4)
+b <- future_lapply(1:8, f, future.seed = TRUE)
+
+identical(a, b)
+plan(sequential)
+\end{lstlisting}
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Parallel tidy workflows with \texttt{furrr}}
+\begin{block}{The \texttt{purrr} interface with futures}
+\begin{lstlisting}[language=R]
+library(future)
+library(furrr)
+
+plan(multisession, workers = 4)
+
+results <- future_map(
+  1:20,
+  ~ mean(rnorm(1e6, mean = .x)),
+  .options = furrr_options(seed = 2026)
+)
+
+plan(sequential)
+\end{lstlisting}
+\end{block}
+Use this interface when students already know \texttt{purrr::map()}.
+\end{frame}
+
+\begin{frame}[fragile]{Keep existing \texttt{foreach} code with \texttt{doFuture}}
+\begin{block}{Modern backend for a familiar interface}
+\begin{lstlisting}[language=R]
+library(future)
+library(doFuture)
+library(foreach)
+
+registerDoFuture()
+plan(multisession, workers = 4)
+
+ans <- foreach(i = 1:20,
+               .combine = c,
+               .options.future = list(seed = TRUE)) %dopar% {
+  mean(rnorm(1e6, mean = i))
+}
+
+plan(sequential)
+\end{lstlisting}
+\end{block}
+This provides a migration path rather than requiring an immediate rewrite of all \texttt{foreach} material.
+\end{frame}
+
+\begin{frame}{Choosing a local future plan}
+\begin{itemize}
+  \item \texttt{sequential}: debugging, teaching, and a reproducible baseline.
+  \item \texttt{multisession}: separate R processes; portable across Windows, macOS, and Linux.
+  \item \texttt{multicore}: forked processes; available on supported POSIX systems, not Windows.
+  \item Explicit cluster backends: use when workers are remote or require custom startup.
+\end{itemize}
+\vspace{0.2cm}
+For a mixed classroom, \texttt{multisession} is the safest default. Always return to \texttt{plan(sequential)} after an exercise.
+\end{frame}
+
+\subsection{Reproducibility and diagnostics}
+
+\begin{frame}[fragile]{Reproducible parallel random numbers}
+\begin{block}{Do not rely only on \texttt{set.seed()} before parallel mapping}
+\begin{lstlisting}[language=R]
+library(future.apply)
+
+plan(multisession, workers = 4)
+set.seed(2026)
+
+z1 <- future_lapply(1:10, function(i) rnorm(3),
+                    future.seed = TRUE)
+
+set.seed(2026)
+z2 <- future_lapply(1:10, function(i) rnorm(3),
+                    future.seed = TRUE)
+
+identical(z1, z2)
+plan(sequential)
+\end{lstlisting}
+\end{block}
+Reproducibility must hold when the worker count or backend changes.
+\end{frame}
+
+\begin{frame}{Common reasons for disappointing speedup}
+\begin{itemize}
+  \item Tasks are too short compared with worker startup and communication.
+  \item Large global objects are copied or serialised for every task.
+  \item Workers compete for memory bandwidth or disk I/O.
+  \item Work is unevenly distributed among workers.
+  \item Nested parallelism oversubscribes CPUs.
+  \item A sequential fraction limits total speedup (Amdahl's law).
+\end{itemize}
+\vspace{0.2cm}
+Measure serial and parallel versions using the same inputs and verify that they return equivalent results.
+\end{frame}
+
+\begin{frame}[fragile]{Chunking: amortise scheduling overhead}
+\begin{block}{Prefer fewer substantial tasks to millions of tiny tasks}
+\begin{lstlisting}[language=R]
+library(future.apply)
+
+plan(multisession, workers = 4)
+
+ids <- split(1:10000, cut(1:10000, 40, labels = FALSE))
+ans <- future_lapply(ids, function(block) {
+  vapply(block, expensive_function, numeric(1))
+})
+ans <- unlist(ans, use.names = FALSE)
+\end{lstlisting}
+\end{block}
+The best chunk size depends on task duration, variability, memory use, and backend latency.
+\end{frame}
+
+\subsection{From one node to Slurm}
+
+\begin{frame}{A scheduler changes resource ownership}
+\begin{itemize}
+  \item The login node is for editing, compiling, and submitting jobs, not heavy computation.
+  \item Slurm grants CPUs, memory, accelerators, nodes, and wall time to a job.
+  \item R should discover and use only the resources allocated to that job.
+  \item Multi-node execution adds network communication and distributed failure modes.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{A minimal Slurm batch job}
+\begin{block}{\texttt{run\_analysis.sbatch}}
+\begin{lstlisting}[language=bash]
+#!/bin/bash
+#SBATCH --job-name=parallel-r
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=32G
+#SBATCH --time=00:30:00
+#SBATCH --output=logs/%x_%j.out
+
+module load R
+Rscript analysis.R
+\end{lstlisting}
+\end{block}
+Submit with \texttt{sbatch run\_analysis.sbatch}; inspect the queue with \texttt{squeue -u \$USER}.
+Adapt partition, account, module name, memory, and time to the target system.
+\end{frame}
+
+\begin{frame}[fragile]{Use Slurm through \texttt{future.batchtools}}
+\begin{block}{Change the plan, not the analytical function}
+\begin{lstlisting}[language=R]
+library(future)
+library(future.apply)
+library(future.batchtools)
+
+plan(
+  future.batchtools::batchtools_slurm,
+  resources = list(
+    time = "00:20:00",
+    mem = "4G",
+    ncpus = 1
+  )
+)
+
+ans <- future_lapply(files, analyse_file,
+                     future.seed = TRUE)
+\end{lstlisting}
+\end{block}
+Resource field names depend on the cluster template. Test with a small job before scaling up.
+\end{frame}
+
+\begin{frame}{Single node or multiple nodes?}
+\begin{itemize}
+  \item Start with one node: lower latency, simpler debugging, and usually faster data access.
+  \item Use multiple nodes when memory, throughput, or turnaround requirements exceed one node.
+  \item Independent simulations and file-level processing scale more easily than tightly coupled algorithms.
+  \item For communication-heavy numerical algorithms, specialised MPI or distributed libraries may be more appropriate.
+\end{itemize}
+\end{frame}
+
+\subsection{Data movement before parallelism}
+
+\begin{frame}{Sometimes the bottleneck is data, not R code}
+\begin{itemize}
+  \item CSV parsing, repeated scans, and object copying can dominate the computation.
+  \item Columnar formats such as Parquet reduce unnecessary I/O for analytical workloads.
+  \item Apache Arrow supports columnar and dataset-oriented workflows.
+  \item DuckDB can execute analytical SQL directly over local files and tabular data.
+\end{itemize}
+\vspace{0.2cm}
+Before adding workers, reduce the amount of data read, copied, and returned.
+\end{frame}
+
+\begin{frame}[fragile]{Query Parquet data without loading everything}
+\begin{block}{Arrow dataset with lazy filtering and aggregation}
+\begin{lstlisting}[language=R]
+library(arrow)
+library(dplyr)
+
+sales <- open_dataset("data/sales", format = "parquet")
+
+summary <- sales |>
+  filter(year == 2026) |>
+  group_by(region) |>
+  summarise(revenue = sum(amount, na.rm = TRUE)) |>
+  collect()
+\end{lstlisting}
+\end{block}
+Only call \texttt{collect()} when the reduced result is needed as an in-memory R object.
+\end{frame}
+
+\begin{frame}[fragile]{Use DuckDB for analytical queries}
+\begin{block}{Push computation into an analytical database}
+\begin{lstlisting}[language=R]
+library(DBI)
+library(duckdb)
+
+con <- dbConnect(duckdb())
+result <- dbGetQuery(con, "
+  SELECT region, AVG(value) AS mean_value
+  FROM read_parquet('data/*.parquet')
+  GROUP BY region
+")
+dbDisconnect(con, shutdown = TRUE)
+\end{lstlisting}
+\end{block}
+Compare this approach with manually splitting files among R workers.
+\end{frame}
+
+\subsection{Compiled and accelerator execution}
+
+\begin{frame}{Four distinct acceleration strategies}
+\begin{itemize}
+  \item \textbf{Vectorisation}: use optimised compiled routines already available to R.
+  \item \textbf{Process parallelism}: distribute independent R tasks among workers.
+  \item \textbf{Compiled extensions}: move a hot loop to C++ with \texttt{Rcpp}.
+  \item \textbf{Accelerators}: use GPU-aware libraries for suitable dense, batched, or model-training workloads.
+\end{itemize}
+These strategies can be combined, but nested parallelism and data transfers must be controlled.
+\end{frame}
+
+\begin{frame}{Extend the Mandelbrot example with \texttt{RcppParallel}}
+\begin{itemize}
+  \item Keep the existing three implementations: R, R with a C++ kernel, and complete C++.
+  \item Add a fourth implementation using \texttt{RcppParallel::parallelFor}.
+  \item Partition grid indices among threads and write each output element once.
+  \item Compare elapsed time and scaling for 1, 2, 4, and 8 threads.
+  \item Discuss grain size, memory bandwidth, thread safety, and reproducibility.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{GPU tensors from R with \texttt{torch}}
+\begin{block}{Use an accelerator-aware library rather than explicit GPU loops}
+\begin{lstlisting}[language=R]
+library(torch)
+
+device <- if (cuda_is_available()) torch_device("cuda") else torch_device("cpu")
+
+x <- torch_randn(c(4000, 4000), device = device)
+y <- torch_randn(c(4000, 4000), device = device)
+z <- torch_matmul(x, y)
+
+z_cpu <- z$to(device = "cpu")
+\end{lstlisting}
+\end{block}
+GPU speedup depends on operation size, supported kernels, device memory, and host--device transfer costs.
+\end{frame}
+
+\subsection{Updated practical exercise}
+
+\begin{frame}{Capstone: parallel model evaluation}
+\begin{enumerate}
+  \item Create a fixed resampling or hyperparameter grid.
+  \item Implement one deterministic function that evaluates a single grid row.
+  \item Run it sequentially and verify results.
+  \item Run locally with \texttt{future\_map()} or \texttt{future\_lapply()}.
+  \item Run the same function through a Slurm backend.
+  \item Report elapsed time, speedup, efficiency, memory, and failed tasks.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{Capstone skeleton}
+\begin{block}{Backend-independent worker function}
+\begin{lstlisting}[language=R]
+library(future)
+library(furrr)
+
+grid <- expand.grid(
+  penalty = 10^seq(-4, 1, length.out = 20),
+  split = 1:10
+)
+
+evaluate_one <- function(i) {
+  row <- grid[i, ]
+  # fit on the training split; score on the test split
+  data.frame(i = i, penalty = row$penalty,
+             split = row$split, score = NA_real_)
+}
+
+plan(multisession, workers = 4)
+scores <- future_map_dfr(
+  seq_len(nrow(grid)), evaluate_one,
+  .options = furrr_options(seed = 2026)
+)
+plan(sequential)
+\end{lstlisting}
+\end{block}
+Replace the placeholder score with the course model and dataset.
+\end{frame}
+
+\begin{frame}{Updated summary}
+\begin{itemize}
+  \item Optimise the algorithm and data movement before parallelising.
+  \item Use \texttt{parallel} to explain processes, PSOCK, and forked execution.
+  \item Use \texttt{future} as the primary portable parallel interface.
+  \item Treat reproducible random numbers and worker cleanup as core correctness topics.
+  \item Use Slurm-aware backends for HPC scaling.
+  \item Consider Arrow, DuckDB, compiled code, or GPUs when they match the bottleneck.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{References and documentation}
+\scriptsize
+\begin{itemize}
+  \item Futureverse: \url{https://www.futureverse.org/}
+  \item \texttt{future.batchtools}: \url{https://future.batchtools.futureverse.org/}
+  \item \texttt{parallelly}: \url{https://parallelly.futureverse.org/}
+  \item Arrow R documentation: \url{https://arrow.apache.org/docs/r/}
+  \item DuckDB R client: \url{https://duckdb.org/docs/stable/clients/r}
+  \item \texttt{RcppParallel}: \url{https://rcppcore.github.io/RcppParallel/}
+  \item torch for R: \url{https://torch.mlverse.org/}
+  \item Slurm documentation: \url{https://slurm.schedmd.com/documentation.html}
+\end{itemize}
+
+\input{parallel_R_GPU_3_slides}
+\end{frame}

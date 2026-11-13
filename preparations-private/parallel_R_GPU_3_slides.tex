@@ -1,0 +1,69 @@
+% Three additional Beamer slides: GPU + parallel R
+% Insert after the Rcpp/RcppParallel material or before the course summary.
+% No images or additional LaTeX packages are required.
+
+\subsection{GPU computing with R}
+
+\begin{frame}{CPU parallelism and GPU acceleration}
+\small
+\begin{itemize}
+  \item A CPU has a relatively small number of powerful, general-purpose cores; a GPU provides many simpler execution units for highly parallel numerical workloads.
+  \item GPU acceleration is most useful for large matrix operations, tensor computations, deep-learning models, and large batches of similar operations.
+  \item CPU parallelism is usually more suitable for irregular tasks, branching algorithms, many small independent jobs, and workflows dominated by disk or network access.
+  \item A GPU does not accelerate ordinary R code automatically: computations must use a GPU-enabled library and data must be transferred to GPU memory.
+\end{itemize}
+\vspace{0.15cm}
+\alert{Practical rule:} first create and verify a CPU baseline; use a GPU only when the workload is sufficiently large to compensate for setup and data-transfer costs.
+\end{frame}
+
+\begin{frame}[fragile]{GPU tensors in R with \texttt{torch}}
+\begin{block}{The same tensor operation on the available device}
+\begin{lstlisting}[language=R,basicstyle=\ttfamily\scriptsize]
+library(torch)
+
+use_gpu <- cuda_is_available()
+device <- if (use_gpu) torch_device("cuda") else torch_device("cpu")
+cat("Using:", device$type, "\n")
+
+n <- 4000
+x <- torch_randn(n, n, device = device)
+y <- torch_randn(n, n, device = device)
+
+z <- torch_matmul(x, y)
+if (use_gpu) cuda_synchronize()
+
+result <- z$mean()$item()
+rm(x, y, z)
+\end{lstlisting}
+\end{block}
+\begin{itemize}
+  \item \texttt{cuda\_is\_available()} checks whether CUDA can be used.
+  \item Keep intermediate tensors on the GPU; copy back only the final result needed in R.
+  \item Synchronise before timing because GPU operations may execute asynchronously.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Requesting a GPU with Slurm}
+\begin{block}{Example batch script; adapt resource names to the cluster}
+\begin{lstlisting}[language=bash,basicstyle=\ttfamily\scriptsize]
+#!/bin/bash
+#SBATCH --job-name=torch-r
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=16G
+#SBATCH --time=00:15:00
+#SBATCH --gres=gpu:1
+#SBATCH --output=logs/%x_%j.out
+
+module load R
+# The cluster may also require CUDA or a suitable container/module.
+Rscript gpu_torch.R
+\end{lstlisting}
+\end{block}
+\begin{itemize}
+  \item Request a GPU explicitly; do not run GPU exercises on a login node.
+  \item The Slurm GPU option, partition name, modules, drivers, and supported CUDA version are cluster-specific.
+  \item For this four-hour course, one shared demonstration GPU is enough; the main hands-on exercises can remain CPU-based.
+\end{itemize}
+\end{frame}

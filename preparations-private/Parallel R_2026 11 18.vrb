@@ -1,0 +1,13 @@
+\frametitle{Cross-validation of models}
+\begin{itemize}
+	\item 	Suppose we want to cretae $N$ GLM models, where training data sets is random sample of size 70\%, and test data sets is the remaing set.
+	\item If $N=10$ and we use 10\% training set, we have the usual 10-fold cross-validation.
+	\item We do it on dataset {\tt K\_data\_clean.txt}.
+	\item Use {\tt R} script {\tt parallel\_cross-validation.R}
+	\item Timings with 10 cores
+		\begin{verbatim}
+		            user.self  sys.self   elapsed
+        time_ser    139.71     0.11       141.89
+        time_par      0.76     0.13        30.82
+ \end{verbatim}
+\end{itemize}

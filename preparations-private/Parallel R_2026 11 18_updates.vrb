@@ -1,0 +1,27 @@
+\frametitle{Capstone skeleton}
+\begin{block}{Backend-independent worker function}
+\begin{lstlisting}[language=R]
+library(future)
+library(furrr)
+
+grid <- expand.grid(
+  penalty = 10^seq(-4, 1, length.out = 20),
+  split = 1:10
+)
+
+evaluate_one <- function(i) {
+  row <- grid[i, ]
+  # fit on the training split; score on the test split
+  data.frame(i = i, penalty = row$penalty,
+             split = row$split, score = NA_real_)
+}
+
+plan(multisession, workers = 4)
+scores <- future_map_dfr(
+  seq_len(nrow(grid)), evaluate_one,
+  .options = furrr_options(seed = 2026)
+)
+plan(sequential)
+\end{lstlisting}
+\end{block}
+Replace the placeholder score with the course model and dataset.

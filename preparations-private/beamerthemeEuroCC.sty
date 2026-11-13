@@ -1,0 +1,375 @@
+% Name           : beamerthemeEuroCC.sty
+% Author         : Giovanna Roda
+% Version        : 0.1
+% Created on     : 18.02.2022
+% Copyright      : Copyright (c) 2022 by Giovanna Roda. All rights reserved.
+% License        : This file may be distributed and/or modified under the
+%                  GNU Public License.
+% Description    : Beamer theme from 
+%                  https://www.overleaf.com/latex/templates/uc-davis-beamer-temp/vvhvwsdmvvpc
+%                  with LIP6/UPMC inspired design.
+%                  Based on HSRM Beamer Theme by Benjamin Weiss
+%                  (https://github.com/benjamin-weiss/hsrmbeamertheme)
+
+\ProvidesPackage{beamerthemeEuroCC}[2022/02/18]
+
+\usepackage[T1]{fontenc}
+\usepackage{eso-pic}
+\usepackage{tikz}
+% The table is built using TikZ matrix library features:
+\usetikzlibrary{calc}
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+\usetikzlibrary{matrix}
+\usepackage{multicol}
+\usepackage{tabularx}
+%https://tex.stackexchange.com/questions/343028/vertical-centering-of-all-columns-in-tabularx-environment/343329
+\renewcommand\tabularxcolumn[1]{m{#1}}% for vertical centering text in X column
+\usepackage{enumitem}
+\setitemize{label=\usebeamerfont*{itemize item}%
+  \usebeamercolor[fg]{itemize item}
+  \usebeamertemplate{itemize item}}
+\usepackage{booktabs}
+\usepackage{colortbl}
+\newcommand*\up{\textcolor{green}{%
+  \ensuremath{\blacktriangle}}}
+\newcommand*\down{\textcolor{red}{%
+  \ensuremath{\blacktriangledown}}}
+\newcommand*\const{\textcolor{darkgray}%
+  {\textbf{--}}}
+\usepackage{pdfpages}
+\usepackage{hyperref}
+\usepackage{pbox}
+\usepackage{multicol} % Allows table cells to span multiple columns
+\usepackage{longtable} % Allows the creation of tables that automatically wrap to the next page
+\usepackage[table]{xcolor}
+\usepackage{booktabs}
+\usepackage[utf8]{inputenc}
+\usepackage{dirtytalk}
+\usepackage{csquotes}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,hooks}
+\usepackage{datetime}
+\newdateformat{monthyeardate}{%
+  \monthname[\THEMONTH], \THEYEAR}
+  % e.g.\monthyeardate\today
+  % https://tex.stackexchange.com/questions/212263/month-year-format-in-latex
+\newcommand*\head[1]{\textcolor{blue}{\textbf{\textsc{#1}}}}
+
+%{\textcolor{blue}{\textbf{#1}}}
+% The table environment:
+\newenvironment{matrixtable}[3]{%
+  \begin{tikzpicture}[matrix of nodes/.style={
+    execute at begin cell=\node\bgroup\strut,
+    execute at end cell=\egroup;}]
+  \matrix (m) [matrix of nodes,top color=blue!10,
+    bottom color=blue!70,draw=white,
+    nodes={inner sep=2pt,minimum height=3.1ex},
+    column sep=1ex,row sep=0.6ex,inner sep=2ex,
+    rounded corners,column 1/.style={minimum width=#1},
+    column 2/.style={minimum width=#2},
+    column 3/.style={minimum width=#3}]}%
+{;\end{tikzpicture}}
+%
+
+
+
+\newif\if@doSectionPage
+\@doSectionPagefalse
+\DeclareOption{nosectionpages}{\@doSectionPagetrue}
+
+\newif\if@doCompressMiniframes
+\@doCompressMiniframesfalse
+\DeclareOption{compressminiframes}{\@doCompressMiniframestrue}
+
+\newif\if@doFlama
+\@doFlamafalse
+\DeclareOption{flama}{\@doFlamatrue}
+
+\ProcessOptions
+
+\mode<presentation>
+
+
+%---------------------------------------------------------------------
+% TOC
+%---------------------------------------------------------------------
+
+\useoutertheme{infolines} 
+
+
+%---------------------------------------------------------------------
+% Captions with numbers
+%---------------------------------------------------------------------
+\setbeamertemplate{caption}[numbered]
+
+\setlength{\parskip}{0.5em}
+
+%---------------------------------------------------------------------
+% TOC
+%---------------------------------------------------------------------
+
+\setbeamerfont{section in toc}{shape=\sc,size=\large}
+\setbeamerfont{subsection in toc}{size=\small}
+%\pretocmd{\beamer@sectionintoc}{\vspace{-0.18cm}}{}{} % uncomment for more compact spacing btwn sections in toc
+%\pretocmd{\beamer@subsectionintoc}{\vspace{-0.18cm}}{}{} % uncomment for more compact spacing btwn  sub-sections in toc
+
+%---------------------------------------------------------------------
+% Colors
+%---------------------------------------------------------------------
+
+% Primary Colors
+\definecolor{EuroCCBlueDark}{rgb}{0.004,0.0,0.509}  % bleu foncé logo
+\definecolor{EuroCCBlueMid}{rgb}{0.141176471,0.160784314,0.329411765} % bleu foncé logo éclairci 
+\definecolor{EuroCCBlueLight}{rgb}{0.89019608,0.91372549,0.92941176}
+
+%\definecolor{EuroCCRedDark}{rgb}{0.588235294,0,0.058823529}
+\definecolor{EuroCCGold}{rgb}{0.72,0.53,0.04}
+\definecolor{EuroCCGoldDark}{rgb}{0.663,0.408,0.047}
+\definecolor{EuroCCGoldLight}{rgb}{.965,.792,0.541}
+
+\definecolor{EuroCCBlue2Dark}{rgb}{0.117647059,0.345098039,0.454901961} % bleu ciel logo EuroCC eclairci
+\definecolor{EuroCCBlue2Mid}{rgb}{0.325490196,0.662745098,0.82745098} % bleu ciel logo EuroCC
+\definecolor{EuroCCBlue2Light}{rgb}{0.862745098,0.933333333,0.964705882} % bleu ciel logo assombri
+\definecolor{EuroCCGray}{rgb}{0.56,0.56,0.56}
+
+\definecolor{EuroCCBeige}{rgb}{0.518,0.545,0.514}  % 
+%\definecolor{EuroCCGreen}{rgb}{0.4745098,0.7254902,0.29411765}
+%\definecolor{EuroCCGreenDark}{rgb}{0.25882353,0.42745098,0.21568627}
+
+% General
+\setbeamercolor{normal text}{fg=black}
+% structure includes bullets
+\setbeamercolor{structure}{fg=EuroCCGold}
+% frametitle
+\setbeamercolor{frametitle}{fg=EuroCCGold}
+\setbeamercolor{itemize item}{fg=EuroCCGold}
+\setbeamercolor{alerted text}{fg=white}
+\setbeamercolor{example text}{fg=white}
+\setbeamercolor{copyright text}{fg=EuroCCBlueLight}
+\setbeamercolor{palette primary}{fg=EuroCCBlueDark}
+\setbeamercolor{palette secondary}{fg=EuroCCBlueDark,bg=EuroCCBlueLight}
+\setbeamercolor{palette tertiary}{fg=black,bg=EuroCCBlueLight}
+\setbeamercolor{palette quaternary}{fg=white, bg=EuroCCBlueDark}
+% Header
+%\setbeamercolor{section in head/foot}{fg=EuroCCBlueLight,bg=EuroCCBlueMid}
+\setbeamercolor{section in head/foot}{fg=EuroCCGold,bg=EuroCCGray}
+\setbeamercolor{subsection in head/foot}{fg=EuroCCGold,bg=EuroCCGray}
+
+% Titlepage
+\setbeamercolor{title}{parent=normal text, bg=, fg=white}
+\setbeamercolor{subtitle}{parent=normal text, bg=EuroCCBlueDark, fg=white}
+\setbeamercolor{institute}{parent=normal text, bg=, fg=white}
+\setbeamercolor{author}{fg=white, bg=}
+\setbeamercolor{date}{fg=white, bg=}
+% Content
+\setbeamercolor{frametitle}{parent=palette quaternary}
+% Blocks
+\setbeamercolor{block title}{parent=palette quaternary}
+\setbeamercolor{block body}{parent=palette secondary}
+\setbeamercolor{block title example}{fg=white, bg=EuroCCBlue2Mid}
+\setbeamercolor{block body example}{fg=EuroCCBlue2Dark, bg=EuroCCBlue2Light}
+\setbeamercolor{block title alerted}{fg=white, bg=EuroCCGold}
+\setbeamercolor{block body alerted}{fg=EuroCCGoldDark, bg=EuroCCGoldLight}
+% Notes
+\setbeamercolor{note page}{fg=EuroCCBlueDark,bg=EuroCCBlueLight}
+\setbeamercolor{note title}{fg=white, bg=EuroCCBlueDark}
+\setbeamercolor{note date}{parent=note title}
+% Page Number
+\setbeamercolor{page number in head/foot}{fg=EuroCCBlueDark}
+
+%---------------------------------------------------------------------
+% Fonts
+%---------------------------------------------------------------------
+
+% Titlepage
+\setbeamerfont{title}{size=\fontsize{24}{24}}
+\setbeamerfont{subtitle}{size=\fontsize{14}{16}}
+\setbeamerfont{date}{size=\fontsize{10}{12}}
+\setbeamerfont{author}{size=\fontsize{14}{16}}
+\setbeamerfont{institute}{size=\fontsize{12}{14}}
+% Section
+\setbeamerfont{section title}{size=\LARGE}
+% Content
+\setbeamerfont{frametitle}{size=\Large}
+\setbeamerfont{copyright text}{size=\tiny}
+\setbeamerfont{block title}{size=\large}
+\setbeamerfont{block title alerted}{size=\large}
+
+\if@doFlama%
+	\usepackage{fontspec}
+
+	% Load font
+	\newfontfamily\Light{Flama-Light}
+	\newfontfamily\Book{Flama-Book}
+	\newfontfamily\Medium{Flama-Medium}
+	\setsansfont[BoldFont={Flama-Basic},ItalicFont={Flama-Light-Italic},BoldItalicFont={Flama-Basic-Italic}]{Flama-Light}
+
+	% Fontstyle
+	\setbeamerfont{title}{family=\Light}
+	\setbeamerfont{subtitle}{family=\Light}
+	\setbeamerfont{frametitle}{family=\Light}
+	\setbeamerfont{copyright text}{family=\Light}
+	\setbeamerfont{block title}{family=\Book}
+	\setbeamerfont{block title alerted}{family=\Book}
+	\setbeamerfont{alerted text}{family=\Medium}
+	\setbeamerfont{caption name}{family=\Book}
+	\renewcommand\UrlFont{\Book}
+
+	% Itemize
+	\newcommand{\rightTextArrow}{→}
+	\setbeamertemplate{itemize item}{\rightTextArrow}
+	\setbeamertemplate{itemize subitem}{\rightTextArrow}
+	\setbeamertemplate{itemize subsubitem}{\rightTextArrow}
+\fi
+
+%---------------------------------------------------------------------
+% Titlepage
+%---------------------------------------------------------------------
+
+% Titlepage structure
+\def\maketitle{\ifbeamer@inframe\titlepage\else\frame[plain]{\titlepage}\fi}
+\def\titlepage{\usebeamertemplate{title page}}
+\setbeamertemplate{title page}
+{
+	% Add background to title page
+%	\begin{tikzpicture}[overlay]
+%	\node at (5.41,-4.75) {\includegraphics[width=\paperwidth, height = \paperheight]{images/EuroCC-background.pdf}};
+%	\end{tikzpicture}
+
+\noindent\hrulefill\par
+\noindent\makebox[\textwidth][c]{%
+	\begin{minipage}[b][\paperheight]{0.68\textwidth}
+	%\vspace*{5mm}
+	%\includegraphics[height=14mm]{images/logos}\par
+	\vspace*{20mm}
+%\begin{beamercolorbox}
+	\ifx\insertauthor\@empty%
+	\else%
+		{\usebeamerfont{author}\begin{beamercolorbox}[center,wd=\textwidth,ht=9.8ex,sep=1ex]{title}\usebeamerfont{title}\MakeUppercase{\inserttitle}\par\end{beamercolorbox}}%
+	\fi%
+
+%\end{beamercolorbox}
+    %\vspace*{13mm}
+	\vfill
+	\ifx\insertauthor\@empty%
+	\else%
+	\begin{center}
+		{\usebeamerfont{author}\begin{beamercolorbox}[center, wd=1.14\textwidth, ht=6ex,sep=1ex]{author}\insertauthor\par\usebeamerfont{institute}\insertinstitute\end{beamercolorbox}}%
+	\end{center}
+	\fi%
+	
+	\vspace*{17.5mm}
+	\end{minipage}
+}}
+
+
+%
+% hypersetup
+\hypersetup{
+    urlcolor=EuroCCGray
+}
+
+%---------------------------------------------------------------------
+% Sectionpages
+%---------------------------------------------------------------------
+\usepackage{etoolbox}
+\pretocmd{\tableofcontents}{\begin{minipage}[t][7cm]{\textwidth}}{}{}
+\apptocmd{\tableofcontents}{\end{minipage}}{}{}  
+
+\if@doSectionPage\@empty
+\else
+% Insert frame with section title at every section start
+\AtBeginSection[]
+{
+
+{
+\setcounter{tocdepth}{1}
+\setbeamertemplate{section in toc}[ball unnumbered]
+{\setbeamercolor{background canvas}{bg=EuroCCGray}
+\begin{frame}[plain]
+\frametitle{Outline/next}
+\tableofcontents
+%[currentsection,hideallsubsections]
+\end{frame}}
+}
+
+{\usebackgroundtemplate{%
+  \includegraphics[width=\paperwidth,height=\paperheight]{"EuroCC Background DARK_rectangular.png"}} 
+\begingroup
+% this is the section page at the beginning of each section
+\setbeamercolor{background canvas}{bg=EuroCCGray}
+\begin{frame}[plain]
+\centering
+\vfill\usebeamerfont{section title}\textcolor{EuroCCGold}{\Huge\textsc{\insertsection}}\vfill
+\end{frame}
+\addtocounter{framenumber}{-1}
+\endgroup
+}
+}
+\fi
+
+%---------------------------------------------------------------------
+% Frametitle
+%---------------------------------------------------------------------
+%% ATTEMPT
+%\setbeamertemplate{frametitle}{
+%\begin{textblock*}{\paperwidth}(-0.3,0pt)
+%\includegraphics[width=\paperwidth,height=3.5ex]{eurocc_banner}
+%\end{textblock*} \insertframetitle
+%}
+%%
+\setbeamertemplate{frametitle}
+{
+\vspace*{-5.2mm}
+\begin{tcolorbox}[enhanced,extrude left by=0.41cm, extrude right by=0.21cm, width=\paperwidth,boxsep=0mm,halign=center,valign=center,height=6.3ex,arc=0pt, boxrule=0pt, watermark graphics=eurocc_banner, 
+watermark opacity=1.0,watermark color=blue,watermark stretch=1, colupper=EuroCCGold]\usebeamerfont{frametitle}\insertframetitle
+
+\end{tcolorbox}
+}
+
+
+%{
+%\vspace*{-.4mm}
+%\begin{beamercolorbox}[wd=\paperwidth,leftskip=0.3cm,rightskip=0.3cm,ht=3.5ex,dp=1.5ex]{frametitle}
+%  \ifx\insertframesubtitle\empty
+%      \usebeamerfont{frametitle}\insertframetitle%
+%    \else
+%    \usebeamerfont{frametitle}\insertframetitle~{%-- \large\it \insertframesubtitle}%
+%\fi
+%\hfill \raisebox{-1.5mm}{\includegraphics[width=1cm ]{images/Logo-EuroCC_GOLD-TP.png}}
+%\end{beamercolorbox}
+%}
+
+%%---------------------------------------------------------------------
+%% Footline
+%%---------------------------------------------------------------------
+\newcommand{\insertfoottitle}{\inserttitle}
+
+\newcommand{\foottitle}[1]{
+	\renewcommand{\insertfoottitle}{#1}
+}
+
+\newcommand{\speaker}[1]{
+	\renewcommand{\insertspeaker}{#1}
+}
+\newcommand{\insertspeaker}{}
+
+\usenavigationsymbolstemplate{}
+\setbeamertemplate{footline}
+{%
+\begin{beamercolorbox}[wd=\textwidth,ht=3ex,dp=1.5ex,leftskip=0.3cm,rightskip=0.3cm]{structure}%
+\ifthenelse{\equal{\insertspeaker}{}}{
+	\insertfoottitle
+}{
+	\insertfoottitle{} -- \insertspeaker
+}
+\hfill\usebeamerfont{page number in head/foot}%
+\insertframenumber /\inserttotalframenumber%
+\end{beamercolorbox}%
+}
+
+\mode
+<all>
+

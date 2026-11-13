@@ -1,0 +1,62 @@
+Parallel R 2024 -> 2026 revision notes
+
+1. Add to the preamble if missing:
+   \usepackage{booktabs}
+
+2. Update title metadata:
+   \title{Parallel computing with R: from a workstation to HPC}
+   \subtitle{EuroCC training: modern workflows with future, Slurm, Arrow and accelerators}
+   \date{2026}
+   Use only one \institute{...} command; the second currently overwrites the first.
+
+3. Replace HTML copied into LaTeX.
+   Strings such as <a href="...">...</a> do not belong in a .tex file.
+   Use \url{https://...} or \href{https://...}{descriptive text}.
+
+4. Correct language and terminology throughout:
+   "How does my computer looks like" -> "What does my computer look like?"
+   "cpu-extensive" -> "CPU-intensive"
+   "memory-extensive" -> "memory-intensive"
+   "I/O-extensive" -> "I/O-intensive"
+   "network-extensive" -> "communication- or network-intensive"
+   "Cores routines are written and Fortran" -> "Core routines are written in C and Fortran"
+   "paralelization/paralleizable/foerach" -> "parallelisation/parallelisable/foreach"
+   "cretae/remaing" -> "create/remaining"
+   "10-fold cross-validation" is not obtained by repeatedly taking a 10% training set.
+   Define k-fold CV as partitioning observations into k folds, training on k-1 folds,
+   and testing on the held-out fold, repeated so every fold is held out once.
+
+5. Replace deprecated or confusing examples:
+   - rand()/randn() are not base R. Use runif(), rnorm(), or state the pracma dependency.
+   - sum_rand <- rep(0, K-1) is wrong when the loop is 1:K. Use numeric(K).
+   - foreach does not update a parent vector by side effect. Return values and combine them:
+       sum_rand <- foreach(i = seq_len(K), .combine = c) %dopar% { ... }
+   - Use seq_len(K), not c(1:K).
+   - The Mandelbrot R loop should use seq_len(max_iter), not 1:max_iter-1.
+   - The usual Mandelbrot iteration starts with z0 = 0. If using z1 = c, explain this indexing convention.
+
+6. Shorten the introductory R section.
+   For an intermediate parallel-R course, retain only vectors/data frames, functions,
+   lists, lapply, and a five-minute reproducibility check. Move basic R material to a
+   prerequisite handout. This creates room for future, reproducible RNG, Slurm, and data I/O.
+
+7. Keep, but reposition:
+   - parallel::parLapply() and mclapply() as foundations.
+   - foreach/doParallel as legacy/common ecosystem material.
+   - Rcpp and Mandelbrot as the compiled-code case study.
+
+8. Insert the companion file before your existing Rcpp section:
+   \input{parallel_R_2026_updates}
+
+9. Suggested one-day sequence:
+   45 min: performance model, hardware, workers, benchmarking
+   75 min: parallel foundations and process models
+   90 min: future/future.apply/furrr and reproducible RNG
+   60 min: Slurm and future.batchtools
+   45 min: Arrow/DuckDB and data movement
+   45 min: Rcpp/RcppParallel/GPU overview and capstone
+
+10. Compilation note:
+    The supplied source depends on the custom EuroCC theme and local image files.
+    The update module was therefore syntax-checked as a standalone include, but a complete
+    PDF build requires your theme and images directory.
