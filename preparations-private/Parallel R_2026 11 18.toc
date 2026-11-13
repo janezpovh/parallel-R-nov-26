@@ -1,0 +1,6 @@
+\babel@toc {american}{}\relax 
+\beamer@sectionintoc {1}{Introduction to HPC}{2}{0}{1}
+\beamer@sectionintoc {2}{Introduction to R}{18}{0}{2}
+\beamer@subsectionintoc {2}{1}{Basics about R}{20}{0}{2}
+\beamer@sectionintoc {3}{Parallel R within one node}{34}{0}{3}
+\beamer@subsectionintoc {3}{1}{Advanced and Big data management with R}{38}{0}{3}

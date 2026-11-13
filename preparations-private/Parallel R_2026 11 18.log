@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.10.23)  13 NOV 2026 13:20
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2025.10.23)  13 NOV 2026 13:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1818,9 +1818,10 @@ Package: lscape 2020/05/28 v3.02 Landscape Pages (DPC)
 )
 Package pdflscape Info: Auto-detected driver: pdftex on input line 81.
 ))
-No file "Parallel R_2026 11 18".nav.
+(Parallel R_2026 11 18.nav)
 LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 9
 4.
+
 (C:\Users\Janez\AppData\Local\Programs\MiKTeX\tex/latex/base\t1cmtt.fd
 File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 )
@@ -1850,9 +1851,13 @@ Package pdftex.def Info: images/EuroCC Background DARK_rectangular.png  used on
 [1
 
 {C:/Users/Janez/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map} <./images/Eur
-oCC Background DARK_rectangular.png (PNG copy)>]
-No file "Parallel R_2026 11 18".toc.
-<images/eurocc_banner.png, id=35, 308.352pt x 34.2078pt>
+oCC Background DARK_rectangular.png (PNG copy)>] (Parallel R_2026 11 18.toc
+
+LaTeX Font Warning: Font shape `T1/cmss/m/sc' undefined
+(Font)              using `T1/cmss/m/n' instead on input line 2.
+
+)
+<images/eurocc_banner.png, id=40, 308.352pt x 34.2078pt>
 File: images/eurocc_banner.png Graphic file (type png)
 <use images/eurocc_banner.png>
 Package pdftex.def Info: images/eurocc_banner.png  used on input line 124.
@@ -1865,19 +1870,15 @@ Overfull \hbox (4.11905pt too wide) in paragraph at lines 124--124
 [2
 
  <./images/eurocc_banner.png>]
-
-LaTeX Font Warning: Font shape `T1/cmss/m/sc' undefined
-(Font)              using `T1/cmss/m/n' instead on input line 124.
-
 File: images/EuroCC Background DARK_rectangular.png Graphic file (type png)
 <use images/EuroCC Background DARK_rectangular.png>
 Package pdftex.def Info: images/EuroCC Background DARK_rectangular.png  used on
  input line 124.
 (pdftex.def)             Requested size: 364.20192pt x 273.18204pt.
-[3
+ [3
 
 ]
-<images/LUMI2.jpg, id=51, 247.50662pt x 130.03766pt>
+<images/LUMI2.jpg, id=58, 247.50662pt x 130.03766pt>
 File: images/LUMI2.jpg Graphic file (type jpg)
 <use images/LUMI2.jpg>
 Package pdftex.def Info: images/LUMI2.jpg  used on input line 136.
@@ -1894,7 +1895,7 @@ Overfull \hbox (4.11905pt too wide) in paragraph at lines 136--136
 [4
 
  <./images/LUMI2.jpg>]
-<images/HPC_structure.png, id=62, 853.1875pt x 567.11874pt>
+<images/HPC_structure.png, id=69, 853.1875pt x 567.11874pt>
 File: images/HPC_structure.png Graphic file (type png)
 <use images/HPC_structure.png>
 Package pdftex.def Info: images/HPC_structure.png  used on input line 151.
@@ -1911,7 +1912,7 @@ Overfull \hbox (4.11905pt too wide) in paragraph at lines 151--151
 [5
 
  <./images/HPC_structure.png>]
-<images/Node_Lumi.png, id=72, 646.21425pt x 330.63525pt>
+<images/Node_Lumi.png, id=79, 646.21425pt x 330.63525pt>
 File: images/Node_Lumi.png Graphic file (type png)
 <use images/Node_Lumi.png>
 Package pdftex.def Info: images/Node_Lumi.png  used on input line 160.
@@ -1928,7 +1929,7 @@ Overfull \hbox (4.11905pt too wide) in paragraph at lines 160--160
 [6
 
  <./images/Node_Lumi.png>]
-<images/windows_task_manager.png, id=80, 560.0925pt x 672.71326pt>
+<images/windows_task_manager.png, id=87, 560.0925pt x 672.71326pt>
 File: images/windows_task_manager.png Graphic file (type png)
 <use images/windows_task_manager.png>
 Package pdftex.def Info: images/windows_task_manager.png  used on input line 16
@@ -1946,7 +1947,7 @@ Overfull \hbox (4.11905pt too wide) in paragraph at lines 165--165
 [7
 
  <./images/windows_task_manager.png>]
-<images/power_shell.png, id=90, 896.148pt x 244.5135pt>
+<images/power_shell.png, id=97, 896.148pt x 244.5135pt>
 File: images/power_shell.png Graphic file (type png)
 <use images/power_shell.png>
 Package pdftex.def Info: images/power_shell.png  used on input line 170.
@@ -2011,7 +2012,7 @@ Overfull \hbox (4.11905pt too wide) in paragraph at lines 191--191
 [12
 
 ]
-<images/ssh.png, id=126, 493.24275pt x 260.77425pt>
+<images/ssh.png, id=131, 493.24275pt x 260.77425pt>
 File: images/ssh.png Graphic file (type png)
 <use images/ssh.png>
 Package pdftex.def Info: images/ssh.png  used on input line 200.
@@ -2028,7 +2029,7 @@ Overfull \hbox (4.11905pt too wide) in paragraph at lines 200--200
 [13
 
  <./images/ssh.png>]
-<images/HPCmap.png, id=136, 597.35672pt x 503.63156pt>
+<images/HPCmap.png, id=141, 597.35672pt x 503.63156pt>
 File: images/HPCmap.png Graphic file (type png)
 <use images/HPCmap.png>
 Package pdftex.def Info: images/HPCmap.png  used on input line 209.
@@ -2084,8 +2085,7 @@ Overfull \hbox (4.11905pt too wide) in paragraph at lines 217--217
 
 [17
 
-]
-No file "Parallel R_2026 11 18".toc.
+] (Parallel R_2026 11 18.toc)
 File: images/eurocc_banner.png Graphic file (type png)
 <use images/eurocc_banner.png>
 Package pdftex.def Info: images/eurocc_banner.png  used on input line 222.
@@ -2209,7 +2209,7 @@ Overfull \hbox (4.11905pt too wide) in paragraph at lines 295--295
 [26
 
 ]
-<images/rstudio1.png, id=242, 962.47078pt x 481.4236pt>
+<images/rstudio1.png, id=249, 962.47078pt x 481.4236pt>
 File: images/rstudio1.png Graphic file (type png)
 <use images/rstudio1.png>
 Package pdftex.def Info: images/rstudio1.png  used on input line 312.
@@ -2242,7 +2242,7 @@ Overfull \hbox (4.11905pt too wide) in paragraph at lines 312--312
 [28
 
 ]
-<images/git1.png, id=267, 569.7285pt x 355.3275pt>
+<images/git1.png, id=274, 569.7285pt x 355.3275pt>
 File: images/git1.png Graphic file (type png)
 <use images/git1.png>
 Package pdftex.def Info: images/git1.png  used on input line 337.
@@ -2327,8 +2327,7 @@ Overfull \hbox (4.11905pt too wide) in paragraph at lines 592--592
 
 [33
 
-]
-No file "Parallel R_2026 11 18".toc.
+] (Parallel R_2026 11 18.toc)
 File: images/eurocc_banner.png Graphic file (type png)
 <use images/eurocc_banner.png>
 Package pdftex.def Info: images/eurocc_banner.png  used on input line 602.
@@ -2352,7 +2351,7 @@ Package pdftex.def Info: images/EuroCC Background DARK_rectangular.png  used on
 \openout4 = `"Parallel R_2026 11 18.vrb"'.
 
  (Parallel R_2026 11 18.vrb
-<images/cpu_laptop.png, id=401, 390.258pt x 215.6055pt>
+<images/cpu_laptop.png, id=410, 390.258pt x 215.6055pt>
 File: images/cpu_laptop.png Graphic file (type png)
 <use images/cpu_laptop.png>
 Package pdftex.def Info: images/cpu_laptop.png  used on input line 10.
@@ -2862,55 +2861,226 @@ Overfull \hbox (4.11905pt too wide) in paragraph at lines 1180--1180
 
 [69
 
-] (parallel_R_2026_updates.tex
-No file "Parallel R_2026 11 18".toc.
+]
 File: images/eurocc_banner.png Graphic file (type png)
 <use images/eurocc_banner.png>
-Package pdftex.def Info: images/eurocc_banner.png  used on input line 5.
+Package pdftex.def Info: images/eurocc_banner.png  used on input line 1380.
 (pdftex.def)             Requested size: 308.35124pt x 34.2077pt.
 
-Overfull \hbox (4.11905pt too wide) in paragraph at lines 5--5
+Overfull \hbox (4.11905pt too wide) in paragraph at lines 1380--1380
 []  
  []
 
 [70
 
 ]
-File: images/EuroCC Background DARK_rectangular.png Graphic file (type png)
-<use images/EuroCC Background DARK_rectangular.png>
-Package pdftex.def Info: images/EuroCC Background DARK_rectangular.png  used on
- input line 5.
-(pdftex.def)             Requested size: 364.20192pt x 273.18204pt.
- [71
+\openout4 = `"Parallel R_2026 11 18.vrb"'.
 
-]
+ (Parallel R_2026 11 18.vrb)
 File: images/eurocc_banner.png Graphic file (type png)
 <use images/eurocc_banner.png>
-Package pdftex.def Info: images/eurocc_banner.png  used on input line 15.
+Package pdftex.def Info: images/eurocc_banner.png  used on input line 1390.
 (pdftex.def)             Requested size: 308.35124pt x 34.2077pt.
 
-Overfull \hbox (4.11905pt too wide) in paragraph at lines 15--15
+Overfull \hbox (4.11905pt too wide) in paragraph at lines 1390--1390
 []  
+ []
+
+[71
+
+]
+\openout4 = `"Parallel R_2026 11 18.vrb"'.
+
+ (Parallel R_2026 11 18.vrb
+<images/mandelbrot1.png, id=1022, 629.35126pt x 432.4155pt>
+File: images/mandelbrot1.png Graphic file (type png)
+<use images/mandelbrot1.png>
+Package pdftex.def Info: images/mandelbrot1.png  used on input line 11.
+(pdftex.def)             Requested size: 140.0pt x 96.1874pt.
+)
+File: images/eurocc_banner.png Graphic file (type png)
+<use images/eurocc_banner.png>
+Package pdftex.def Info: images/eurocc_banner.png  used on input line 1407.
+(pdftex.def)             Requested size: 308.35124pt x 34.2077pt.
+
+Overfull \hbox (4.11905pt too wide) in paragraph at lines 1407--1407
+[]  
+ []
+
+
+Overfull \vbox (20.8916pt too high) detected at line 1407
  []
 
 [72
 
-]
-! TeX capacity exceeded, sorry [grouping levels=255].
-\labelenumi ->{
-               \labelenumi }
-l.28 \end{frame}
-                
-If you really absolutely need more capacity,
-you can ask a wizard to enlarge me.
+ <./images/mandelbrot1.png>] (Parallel R_2026 11 18.vrb
+File: images/mandelbrot1.png Graphic file (type png)
+<use images/mandelbrot1.png>
+Package pdftex.def Info: images/mandelbrot1.png  used on input line 11.
+(pdftex.def)             Requested size: 140.0pt x 96.1874pt.
+)
+File: images/eurocc_banner.png Graphic file (type png)
+<use images/eurocc_banner.png>
+Package pdftex.def Info: images/eurocc_banner.png  used on input line 1407.
+(pdftex.def)             Requested size: 308.35124pt x 34.2077pt.
 
- 
+Overfull \hbox (4.11905pt too wide) in paragraph at lines 1407--1407
+[]  
+ []
+
+
+Overfull \vbox (20.8916pt too high) detected at line 1407
+ []
+
+[73
+
+]
+\openout4 = `"Parallel R_2026 11 18.vrb"'.
+
+ (Parallel R_2026 11 18.vrb)
+File: images/eurocc_banner.png Graphic file (type png)
+<use images/eurocc_banner.png>
+Package pdftex.def Info: images/eurocc_banner.png  used on input line 1425.
+(pdftex.def)             Requested size: 308.35124pt x 34.2077pt.
+
+Overfull \hbox (4.11905pt too wide) in paragraph at lines 1425--1425
+[]  
+ []
+
+[74
+
+]
+\openout4 = `"Parallel R_2026 11 18.vrb"'.
+
+ (Parallel R_2026 11 18.vrb)
+File: images/eurocc_banner.png Graphic file (type png)
+<use images/eurocc_banner.png>
+Package pdftex.def Info: images/eurocc_banner.png  used on input line 1449.
+(pdftex.def)             Requested size: 308.35124pt x 34.2077pt.
+
+Overfull \hbox (4.11905pt too wide) in paragraph at lines 1449--1449
+[]  
+ []
+
+[75
+
+]
+File: images/eurocc_banner.png Graphic file (type png)
+<use images/eurocc_banner.png>
+Package pdftex.def Info: images/eurocc_banner.png  used on input line 1458.
+(pdftex.def)             Requested size: 308.35124pt x 34.2077pt.
+
+Overfull \hbox (4.11905pt too wide) in paragraph at lines 1458--1458
+[]  
+ []
+
+[76
+
+]
+<images/mandelbrot.png, id=1081, 602.25pt x 83.71275pt>
+File: images/mandelbrot.png Graphic file (type png)
+<use images/mandelbrot.png>
+Package pdftex.def Info: images/mandelbrot.png  used on input line 1471.
+(pdftex.def)             Requested size: 250.0pt x 34.75035pt.
+File: images/eurocc_banner.png Graphic file (type png)
+<use images/eurocc_banner.png>
+Package pdftex.def Info: images/eurocc_banner.png  used on input line 1471.
+(pdftex.def)             Requested size: 308.35124pt x 34.2077pt.
+
+Overfull \hbox (4.11905pt too wide) in paragraph at lines 1471--1471
+[]  
+ []
+
+[77
+
+ <./images/mandelbrot.png>]
+File: images/mandelbrot.png Graphic file (type png)
+<use images/mandelbrot.png>
+Package pdftex.def Info: images/mandelbrot.png  used on input line 1471.
+(pdftex.def)             Requested size: 250.0pt x 34.75035pt.
+File: images/eurocc_banner.png Graphic file (type png)
+<use images/eurocc_banner.png>
+Package pdftex.def Info: images/eurocc_banner.png  used on input line 1471.
+(pdftex.def)             Requested size: 308.35124pt x 34.2077pt.
+
+Overfull \hbox (4.11905pt too wide) in paragraph at lines 1471--1471
+[]  
+ []
+
+[78
+
+]
+\tf@nav=\write8
+\openout8 = `"Parallel R_2026 11 18.nav"'.
+
+\tf@toc=\write9
+\openout9 = `"Parallel R_2026 11 18.toc"'.
+
+\tf@snm=\write10
+\openout10 = `"Parallel R_2026 11 18.snm"'.
+
+ (Parallel R_2026 11 18.aux)
+ ***********
+LaTeX2e <2023-11-01> patch level 1
+L3 programming layer <2024-01-04>
+ ***********
+
+
+LaTeX Font Warning: Size substitutions with differences
+(Font)              up to 0.88pt have occurred.
+
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+Package rerunfilecheck Info: File `"Parallel R_2026 11 18".out' has not changed
+.
+(rerunfilecheck)             Checksum: 868FFF4CC6E9FF844147ECF64D88188C;144.
+Package logreq Info: Writing requests to '"Parallel R_2026 11 18".run.xml'.
+\openout1 = `"Parallel R_2026 11 18.run.xml"'.
+
+ ) 
 Here is how much of TeX's memory you used:
- 45432 strings out of 474486
- 923809 string characters out of 5743754
+ 45671 strings out of 474486
+ 928149 string characters out of 5743754
  2101542 words of memory out of 5000000
- 66711 multiletter control sequences out of 15000+600000
- 576972 words of font info for 82 fonts, out of 8000000 for 9000
+ 66910 multiletter control sequences out of 15000+600000
+ 580007 words of font info for 91 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 263i,16n,131p,1150b,2325s stack positions out of 10000i,1000n,20000p,200000b,200000s
-!  ==> Fatal error occurred, no output PDF file produced!
+ 128i,16n,131p,1150b,2447s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\Janez\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt
+0900.pk> <C:\Users\Janez\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi60
+0\ecss0900.pk> <C:\Users\Janez\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec
+/dpi600\ecsx1000.pk> <C:\Users\Janez\AppData\Local\MiKTeX\fonts/pk/ljfour/jknap
+pen/ec/dpi600\ectt1000.pk> <C:\Users\Janez\AppData\Local\MiKTeX\fonts/pk/ljfour
+/jknappen/ec/dpi600\ectt1200.pk> <C:\Users\Janez\AppData\Local\MiKTeX\fonts/pk/
+ljfour/jknappen/ec/dpi600\ectt1440.pk> <C:\Users\Janez\AppData\Local\MiKTeX\fon
+ts/pk/ljfour/jknappen/ec/dpi600\ectt0800.pk> <C:\Users\Janez\AppData\Local\MiKT
+eX\fonts/pk/ljfour/jknappen/ec/dpi600\ecss1000.pk> <C:\Users\Janez\AppData\Loca
+l\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecsx1095.pk> <C:\Users\Janez\AppDat
+a\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1095.pk> <C:\Users\Janez\
+AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecss1095.pk> <C:\Users\
+Janez\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi450\ectt0800.pk> <C:\
+Users\Janez\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecss0800.pk
+> <C:\Users\Janez\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecss0
+600.pk> <C:\Users\Janez\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600
+\ecss1200.pk> <C:\Users\Janez\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/
+dpi600\ecss1440.pk> <C:\Users\Janez\AppData\Local\MiKTeX\fonts/pk/ljfour/jknapp
+en/ec/dpi600\ectt2488.pk> <C:\Users\Janez\AppData\Local\MiKTeX\fonts/pk/ljfour/
+jknappen/ec/dpi600\ecss2488.pk><C:/Users/Janez/AppData/Local/Programs/MiKTeX/fo
+nts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/Janez/AppData/Local/Programs/
+MiKTeX/fonts/type1/public/amsfonts/cm/cmss10.pfb><C:/Users/Janez/AppData/Local/
+Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmss8.pfb><C:/Users/Janez/AppDat
+a/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmss9.pfb><C:/Users/Jane
+z/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmssi10.pfb><C:/
+Users/Janez/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmssi8
+.pfb><C:/Users/Janez/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/
+cm/cmssi9.pfb><C:/Users/Janez/AppData/Local/Programs/MiKTeX/fonts/type1/public/
+amsfonts/cm/cmsy10.pfb><C:/Users/Janez/AppData/Local/Programs/MiKTeX/fonts/type
+1/public/amsfonts/cm/cmsy9.pfb><C:/Users/Janez/AppData/Local/Programs/MiKTeX/fo
+nts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on "Parallel R_2026 11 18.pdf" (78 pages, 3312870 bytes).
+PDF statistics:
+ 1880 PDF objects out of 2073 (max. 8388607)
+ 162 named destinations out of 1000 (max. 500000)
+ 1093 words of extra memory for PDF output out of 10000 (max. 10000000)
+
