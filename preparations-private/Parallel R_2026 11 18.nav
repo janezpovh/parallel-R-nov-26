@@ -1,0 +1,140 @@
+\headcommand {\slideentry {0}{0}{1}{1/1}{}{0}}
+\headcommand {\beamer@framepages {1}{1}}
+\headcommand {\beamer@sectionpages {1}{1}}
+\headcommand {\beamer@subsectionpages {1}{1}}
+\headcommand {\sectionentry {1}{Introduction to HPC}{2}{Introduction to HPC}{0}}
+\headcommand {\slideentry {1}{0}{1}{2/2}{}{0}}
+\headcommand {\beamer@framepages {2}{2}}
+\headcommand {\slideentry {1}{0}{2}{3/3}{}{0}}
+\headcommand {\beamer@framepages {3}{3}}
+\headcommand {\slideentry {1}{0}{3}{4/4}{}{0}}
+\headcommand {\beamer@framepages {4}{4}}
+\headcommand {\slideentry {1}{0}{4}{5/5}{}{0}}
+\headcommand {\beamer@framepages {5}{5}}
+\headcommand {\slideentry {1}{0}{5}{6/6}{}{0}}
+\headcommand {\beamer@framepages {6}{6}}
+\headcommand {\slideentry {1}{0}{6}{7/7}{}{0}}
+\headcommand {\beamer@framepages {7}{7}}
+\headcommand {\slideentry {1}{0}{7}{8/8}{}{0}}
+\headcommand {\beamer@framepages {8}{8}}
+\headcommand {\slideentry {1}{0}{8}{9/12}{}{0}}
+\headcommand {\beamer@framepages {9}{12}}
+\headcommand {\slideentry {1}{0}{9}{13/13}{}{0}}
+\headcommand {\beamer@framepages {13}{13}}
+\headcommand {\slideentry {1}{0}{10}{14/14}{}{0}}
+\headcommand {\beamer@framepages {14}{14}}
+\headcommand {\slideentry {1}{0}{11}{15/17}{}{0}}
+\headcommand {\beamer@framepages {15}{17}}
+\headcommand {\beamer@sectionpages {2}{17}}
+\headcommand {\beamer@subsectionpages {2}{17}}
+\headcommand {\sectionentry {2}{Introduction to R}{18}{Introduction to R}{0}}
+\headcommand {\slideentry {2}{0}{1}{18/18}{}{0}}
+\headcommand {\beamer@framepages {18}{18}}
+\headcommand {\slideentry {2}{0}{2}{19/19}{}{0}}
+\headcommand {\beamer@framepages {19}{19}}
+\headcommand {\beamer@subsectionpages {18}{19}}
+\headcommand {\beamer@subsectionentry {0}{2}{1}{20}{Basics about R}}
+\headcommand {\slideentry {2}{1}{1}{20/20}{Basics about R}{0}}
+\headcommand {\beamer@framepages {20}{20}}
+\headcommand {\slideentry {2}{1}{2}{21/21}{Basics about R}{0}}
+\headcommand {\beamer@framepages {21}{21}}
+\headcommand {\slideentry {2}{1}{3}{22/23}{Basics about R}{0}}
+\headcommand {\beamer@framepages {22}{23}}
+\headcommand {\slideentry {2}{1}{4}{24/24}{Basics about R}{0}}
+\headcommand {\beamer@framepages {24}{24}}
+\headcommand {\slideentry {2}{1}{5}{25/26}{Basics about R}{0}}
+\headcommand {\beamer@framepages {25}{26}}
+\headcommand {\slideentry {2}{1}{6}{27/28}{Basics about R}{0}}
+\headcommand {\beamer@framepages {27}{28}}
+\headcommand {\slideentry {2}{1}{7}{29/29}{Basics about R}{0}}
+\headcommand {\beamer@framepages {29}{29}}
+\headcommand {\slideentry {2}{1}{8}{30/30}{Basics about R}{0}}
+\headcommand {\beamer@framepages {30}{30}}
+\headcommand {\slideentry {2}{1}{9}{31/31}{Basics about R}{0}}
+\headcommand {\beamer@framepages {31}{31}}
+\headcommand {\slideentry {2}{1}{10}{32/32}{Basics about R}{0}}
+\headcommand {\beamer@framepages {32}{32}}
+\headcommand {\slideentry {2}{1}{11}{33/33}{Basics about R}{0}}
+\headcommand {\beamer@framepages {33}{33}}
+\headcommand {\beamer@sectionpages {18}{33}}
+\headcommand {\beamer@subsectionpages {20}{33}}
+\headcommand {\sectionentry {3}{Parallel R within one node}{34}{Parallel R within one node}{0}}
+\headcommand {\slideentry {3}{0}{1}{34/34}{}{0}}
+\headcommand {\beamer@framepages {34}{34}}
+\headcommand {\slideentry {3}{0}{2}{35/35}{}{0}}
+\headcommand {\beamer@framepages {35}{35}}
+\headcommand {\slideentry {3}{0}{3}{36/37}{}{0}}
+\headcommand {\beamer@framepages {36}{37}}
+\headcommand {\beamer@subsectionpages {34}{37}}
+\headcommand {\beamer@subsectionentry {0}{3}{1}{38}{Advanced and Big data management with R}}
+\headcommand {\slideentry {3}{1}{1}{38/38}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {38}{38}}
+\headcommand {\slideentry {3}{1}{2}{39/39}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {39}{39}}
+\headcommand {\slideentry {3}{1}{3}{40/40}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {40}{40}}
+\headcommand {\slideentry {3}{1}{4}{41/41}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {41}{41}}
+\headcommand {\slideentry {3}{1}{5}{42/43}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {42}{43}}
+\headcommand {\slideentry {3}{1}{6}{44/45}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {44}{45}}
+\headcommand {\slideentry {3}{1}{7}{46/47}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {46}{47}}
+\headcommand {\slideentry {3}{1}{8}{48/48}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {48}{48}}
+\headcommand {\slideentry {3}{1}{9}{49/49}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {49}{49}}
+\headcommand {\slideentry {3}{1}{10}{50/50}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {50}{50}}
+\headcommand {\slideentry {3}{1}{11}{51/53}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {51}{53}}
+\headcommand {\slideentry {3}{1}{12}{54/55}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {54}{55}}
+\headcommand {\slideentry {3}{1}{13}{56/56}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {56}{56}}
+\headcommand {\slideentry {3}{1}{14}{57/57}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {57}{57}}
+\headcommand {\slideentry {3}{1}{15}{58/58}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {58}{58}}
+\headcommand {\slideentry {3}{1}{16}{59/59}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {59}{59}}
+\headcommand {\slideentry {3}{1}{17}{60/60}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {60}{60}}
+\headcommand {\slideentry {3}{1}{18}{61/61}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {61}{61}}
+\headcommand {\slideentry {3}{1}{19}{62/62}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {62}{62}}
+\headcommand {\slideentry {3}{1}{20}{63/63}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {63}{63}}
+\headcommand {\slideentry {3}{1}{21}{64/64}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {64}{64}}
+\headcommand {\slideentry {3}{1}{22}{65/65}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {65}{65}}
+\headcommand {\slideentry {3}{1}{23}{66/66}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {66}{66}}
+\headcommand {\slideentry {3}{1}{24}{67/67}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {67}{67}}
+\headcommand {\slideentry {3}{1}{25}{68/68}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {68}{68}}
+\headcommand {\slideentry {3}{1}{26}{69/69}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {69}{69}}
+\headcommand {\slideentry {3}{1}{27}{70/70}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {70}{70}}
+\headcommand {\slideentry {3}{1}{28}{71/71}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {71}{71}}
+\headcommand {\slideentry {3}{1}{29}{72/73}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {72}{73}}
+\headcommand {\slideentry {3}{1}{30}{74/74}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {74}{74}}
+\headcommand {\slideentry {3}{1}{31}{75/75}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {75}{75}}
+\headcommand {\slideentry {3}{1}{32}{76/76}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {76}{76}}
+\headcommand {\slideentry {3}{1}{33}{77/78}{Advanced and Big data management with R}{0}}
+\headcommand {\beamer@framepages {77}{78}}
+\headcommand {\beamer@partpages {1}{78}}
+\headcommand {\beamer@subsectionpages {38}{78}}
+\headcommand {\beamer@sectionpages {34}{78}}
+\headcommand {\beamer@documentpages {78}}
+\headcommand {\gdef \inserttotalframenumber {57}}
