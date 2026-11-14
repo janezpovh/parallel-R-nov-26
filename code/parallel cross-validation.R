@@ -1,16 +1,21 @@
 # Parallel Cross-Validation Example
+needed.packages <- c("caret")
+new.packages <- needed.packages[!(needed.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
 
+library(future)
 library(foreach)    # install.packages('foreach')
 library(caret)      # install.packages('caret', dependencies = c("Depends", "Suggests"))
 library(doParallel) # install.packages('doParallel')
 
 #data <- read.csv(…) # Assuming this is your dataset 
 
-if (Sys.info()["sysname"]=="Windows"){
-  setwd("C:/Users/janez/OneDrive - Rudolfovo – znanstveno in tehnološko središče Novo Mesto/Documents/UL FS/Projekti/2022/EuroCC II/Izobrazecanja UL/parallel-R-sep-24/")
-} else 
-  setwd("/home/rstudio/parallel-R-sep-24")
+myDir=getwd()
+myDir_Data=paste(myDir,"data", sep="/")
 
+ifelse(!dir.exists(myDir), dir.create(myDir), FALSE)
+ifelse(!dir.exists(myDir_Data), dir.create(myDir_Data), FALSE)
+setwd(myDir)
 dir()
 
 
@@ -20,6 +25,7 @@ head(data)
 
 N=100;
 n=round(nrow(data)*0.3)
+final_acc_ser<-numeric(N)
 # 'dopar' here would run this on multiple threads (change to just 'do' for synchronous runs)
 time_ser<-system.time({
   results <- foreach(ind=c(1:N)) %do% {
@@ -35,11 +41,11 @@ time_ser<-system.time({
   y.true <- data.test$class
   
   # Return 2x2 table of predictions vs actual values as well as the fit model (so you could check coefficients)
-  table(y.pred, y.true, dnn=c('predicted', 'actual'))
+  results<-table(y.pred, y.true, dnn=c('predicted', 'actual'))
 }
 
 final_tab<-apply(simplify2array(results), c(1,2), sum)
-final_acc=sum(diag(final_tab))/sum(final_tab)
+final_acc_ser[ind]=sum(diag(results))/sum(results)
 })
 
 registerDoParallel(makeCluster(10)) # Use 10 cores for parallel CV

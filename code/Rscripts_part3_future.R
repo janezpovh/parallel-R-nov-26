@@ -1,7 +1,6 @@
-needed.packages <- c("future","future.apply")
+needed.packages <- c("foreach", "doParallel","parallel","tictoc","pracma","microbenchmark","parallely","future","future.apply")
 new.packages <- needed.packages[!(needed.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
-
 
 library(future)
 library(future.apply)
