@@ -5,29 +5,72 @@ if(length(new.packages)) install.packages(new.packages)
 library(future)
 library(future.apply)
 
+# One computationally expensive task
 f <- function(i) {
-  x <- rnorm(2e6)
+  x <- rnorm(5e6)
   c(task = i, statistic = mean(exp(x)))
 }
 
-plan(sequential)
-a <- future_lapply(1:8, f, future.seed = TRUE)
+n_tasks <- 8
+n_workers <- 2
 
-plan(multisession, workers = 2)
-b <- future_lapply(1:8, f, future.seed = TRUE)
-
-identical(a, b)
+# 1. Sequential
 plan(sequential)
 
-library(future)
-library(furrr)
+set.seed(2026)
+t_seq <- system.time({
+  res_seq <- future_lapply(
+    1:n_tasks, f,
+    future.seed = TRUE
+  )
+})
 
-plan(multisession, workers = 2)
+# 2. Multisession (PSOCK)
+plan(multisession, workers = n_workers)
 
-results <- future_map(
-  1:20,
-  ~ mean(rnorm(1e6, mean = .x)),
-  .options = furrr_options(seed = 2026)
+set.seed(2026)
+t_session <- system.time({
+  res_session <- future_lapply(
+    1:n_tasks, f,
+    future.seed = TRUE
+  )
+})
+
+# 3. Multicore (forking: Linux/macOS only)
+library(parallelly)
+
+options(parallelly.fork.enable = TRUE)
+supportsMulticore()
+
+Sys.info()[["sysname"]]
+Sys.getenv("RSTUDIO")
+getOption("parallelly.fork.enable")
+
+
+if (supportsMulticore()) {
+  plan(multicore, workers = n_workers)
+  
+  set.seed(2026)
+  t_core <- system.time({
+    res_core <- future_lapply(
+      1:n_tasks, f,
+      future.seed = TRUE
+    )
+  })
+}
+
+# Reset
+plan(sequential)
+
+# Compare elapsed times
+times <- c(
+  sequential   = t_seq["elapsed"],
+  multisession = t_session["elapsed"],
+  multicore    = if (supportsMulticore())
+    t_core["elapsed"] else NA
 )
 
-plan(sequential)
+print(times)
+
+
+

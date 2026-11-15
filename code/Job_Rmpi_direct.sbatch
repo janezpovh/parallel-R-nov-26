@@ -14,10 +14,8 @@ module load OpenMPI/5.0.3-GCC-13.3.0
 
 export R_LIBS_USER="$HOME/R/library/4.4"
 mkdir -p "$R_LIBS_USER"
-
 Rscript -e '
 .libPaths(c(Sys.getenv("R_LIBS_USER"), .libPaths()))
-
 if (!requireNamespace("Rmpi", quietly = TRUE)) {
     cat("Rmpi not installed - installing...\n")
     install.packages(
@@ -26,9 +24,7 @@ if (!requireNamespace("Rmpi", quietly = TRUE)) {
         repos = "https://cloud.r-project.org"
     )
 }
-
 library(Rmpi)
 cat("Rmpi OK\n")
 '
-
 mpirun Rscript Rmpi_master_slave.R
