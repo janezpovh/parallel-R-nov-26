@@ -17,6 +17,12 @@
 %\usepackage{transparent}
 \usepackage{subfiles} % Best loaded last in the preamble
 \usepackage[backend=biber,style=authoryear]{biblatex}
+
+
+
+\usepackage{hyperref} 
+\usepackage{fontawesome5}
+
 %\usepackage[style=verbose-ibid,backend=bibtex]{biblatex}
 %\addbibresource{main.bib}
 %\bibliography{main}
@@ -801,6 +807,50 @@ time_foreach=toc()
 
 
 
+\begin{frame}[fragile]{Multisession (PSOCK) vs. Multicore (FORK)}
+	\begin{lstlisting}[language=R,basicstyle=\tiny]
+MULTISESSION / PSOCK               MULTICORE / FORK
+
+Main R                             Main R
+|                                  |
++-- start new R --> Worker 1       +-- fork --> Worker 1
++-- start new R --> Worker 2       +-- fork --> Worker 2
++-- start new R --> Worker 3       +-- fork --> Worker 3
++-- start new R --> Worker 4       +-- fork --> Worker 4
+
+Independent R sessions             Copies of current R process
+
+Objects transferred                Memory initially inherited
+by serialization                   via copy-on-write
+	\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}{When multisession (PSOCK)?}
+	Reasons for multisession (PSOCK):
+	\begin{itemize}
+		\item Portability: code works on Windows, Linux, macOS.
+		\item More predictable behavior with RStudio, connections, external libraries, etc.
+		\item Safety and reproducibility are more important than minimizing overhead.\pp 
+		
+		\item {\bf Cost:} objects have to be serialized and transferred to workers, so large data can create communication and memory overhead.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{When multicore (FORK)?}
+	Reasons for multicore (FORK):
+	\begin{itemize}
+		\item You are on Linux/macOS, not Windows.
+		\item Computations repeatedly use large, mostly read-only objects (copy-on-write principle).
+		\item You want fast worker creation and lower data-transfer overhead.
+		\item You know your code/libraries are fork-safe.	
+		\item {\bf Cost:} if you start changing big data objects, then data transfer is needed to workers. 
+	\end{itemize}
+\end{frame}
+
+
+
+
 \begin{frame}{Libraries {\tt parallel, doParallel}}
 	\begin{itemize}
 		\item {\tt parallel} package comes in the base R installation
@@ -900,7 +950,7 @@ registerDoSEQ()  # alternative - register sequential mode
 		\end{block}
 		\item In linux: 
 		\begin{itemize}
-			\item the first option uses SNOW library and and utilizes {\tt parallel::parLapply()}
+			\item the first option uses SNOW library and utilizes {\tt parallel::parLapply()}
 			\item the second creates FORK cluster and uses MULTICORE library (it effectively utilizes {\tt parallel::mclapply()}). 
 		\end{itemize}
 		\item In windows: both use SNOW. They create PSOCK clusters and basically utilize {\tt parallel::parLapply()}
@@ -1087,12 +1137,125 @@ time_mcLapply      0.004    0.007   0.937
 
 \begin{frame}{Summary: libraries for shared memory parallelization in {\tt R}}
 \begin{itemize}
-	\item Parallel for-loop ({\tt foreach...dopar}). Cluster created by {\tt registerDoParallel(N)} and {\tt registerDoSEQ()}. Library {\tt foreach, doParalel} needed.
-	\item Parallel {\tt apply}: {\tt parLapply, parSapply, mcLapply} need library {parallel}. 
+	\item Parallel for-loop ({\tt foreach...dopar}). Cluster created by {\tt registerDoParallel(N)} and {\tt registerDoSEQ()}. Library {\tt foreach, doParalel} needed. Type of parallelization: multisession (socket, with call makeCluster, stopCluster), multicore (fork) if use registerDoparalel, registerDoSEQ
+	\item Parallel {\tt apply}:  needs library {\tt parallel}. {\tt parLapply, parSapply} create multisession (socket), while mclapply cretaes multicore 
 \end{itemize}
 \end{frame}
 
 
+
+\begin{frame}[fragile]{The \texttt{future} package?} 
+	\begin{block}{One interface -- different execution strategies} 
+\footnotesize 
+	\begin{itemize}
+		\item \texttt{future} separates \CoG{what to compute} from \CoG{how and where to compute it}. 
+		\item The same R code can run sequentially, with independent R sessions (\CoG{\texttt{multisession}}), or using forked processes (\CoG{\texttt{multicore}}). 
+		\item No need to explicitly create, manage, export data to, and stop clusters. 
+		\item Required globals and packages are automatically identified and made available to workers. 
+		\item Changing the parallelization strategy often requires changing only the \texttt{plan()}. 
+		\end{itemize} 
+		\begin{alertblock}{Main idea} \centering \textbf{Write the computation once -- choose the execution strategy separately.} 
+		\end{alertblock} 
+\pp
+		\begin{lstlisting}[language=R] 
+plan(sequential) # no parallelization 
+plan(multisession, workers = 4) # PSOCK workers 
+plan(multicore, workers = 4) # forked workers (Linux/macOS) 
+\end{lstlisting} 
+\end{block} 
+\end{frame}
+
+\begin{frame}[fragile]{Example with future}
+Run this function in serial, multisession and multicore mode.\\
+	
+\begin{lstlisting}[language=R]
+# One computationally expensive task
+f <- function(i) {
+	x <- rnorm(5e6)
+	c(task = i, statistic = mean(exp(x)))
+}
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}[fragile]{Run R scrip in three modes}
+	\hfill \href{https://github.com/janezpovh/parallel-R-nov-26/blob/main/code/Rscripts_part3_future.R} {
+	\beamergotobutton{\faCopy\ Open / Copy code}} 
+		\vspace{-1mm} \begin{block} 
+	{Run function in three modes} 
+	\tiny \begin{lstlisting}[ basicstyle=\color{blue}\tiny\ttfamily, language=R, showstringspaces=false ] 
+library(future)
+library(future.apply)
+n_tasks <- 8
+n_workers <- 2
+
+# One computationally expensive task
+f <- function(i) {
+	x <- rnorm(5e6)
+	c(task = i, statistic = mean(exp(x)))
+}
+
+# 1. Sequential
+plan(sequential)
+set.seed(2026)
+t_seq <- system.time({
+	res_seq <- future_lapply(
+	1:n_tasks, f,
+	future.seed = TRUE
+	)
+})
+	\end{lstlisting} 
+\end{block} 
+	
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]{Run R scrip in three modes - results}
+\begin{block}{Results} 
+ \begin{lstlisting}[ basicstyle=\color{blue}\tiny\ttfamily, language=R, showstringspaces=false ] 
+			> print(times)
+			sequential.elapsed   multisession.elapsed    multicore.elapsed 
+			2.878                2.007                   1.743 
+\end{lstlisting} 
+\end{block} 
+	
+\end{frame}
+
+
+
+
+\begin{frame}{Why library \texttt{future}?} 
+	\small 
+	\begin{itemize}
+		\item With \texttt{parallel} and \texttt{doParallel}, the code is more tightly connected to the way parallel workers are created: 
+		\begin{itemize} 
+			\item \texttt{makeCluster(), parLapply(), stopCluster()} 
+			\item \texttt{registerDoParallel(), \%dopar\%} 
+		\end{itemize} 
+		\item \texttt{future} separates two questions: 
+		\begin{itemize} 
+				\item {What} computation should be performed? 
+				\item {How and where} should it be performed? 
+		\end{itemize} 
+	\end{itemize} 
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Why library {\tt future}?} 
+	\begin{block}{Execution strategy}\scriptsize 
+		\begin{lstlisting}[ basicstyle=\color{blue}\tiny\ttfamily, language=R ] 
+			library(future) 
+			plan(sequential) # sequential 
+			plan(multisession, workers=4) # parallel R sessions 
+			plan(multicore, workers=4) # forked processes (Linux/macOS) 
+		\end{lstlisting} 
+	\end{block} 
+	\begin{center} \CoG{Algorithm stays the same -- only the execution plan changes.} 
+	\end{center} 
+\end{frame}
 
 
 \begin{frame}[fragile]{Very parallelizable task}
@@ -1182,7 +1345,6 @@ workers = 8  elapsed = 5.575
 %\section{Advanced and Big data management with R}
 %\subfile{sections/02_advanced data analysis with R}
 
-\begin{comment}
 	
 	
 \section{Parallelization with Rmpi}
@@ -1193,14 +1355,12 @@ workers = 8  elapsed = 5.575
 
 	
 	\begin{frame}[fragile]{What  is Rmpi}
-		\begin{itemize}
-			\item Rmpi library: Interface for MPI (Message Passing Interface) in R.
-			\item Enables parallel and distributed computing in the R programming language.
-			\item Facilitates communication and coordination between R processes across multiple nodes.
-			\item Particularly useful for parallelizing computationally intensive tasks like simulations or data processing.
-			\item Users can harness the power of parallel computing for improved performance in certain applications.
-			\item Latest version from Dec 2023, see \url{https://cran.r-project.org/web/packages/Rmpi/Rmpi.pdf}
-		\end{itemize}
+\begin{itemize} \footnotesize
+	\item \texttt{Rmpi}: an R interface to MPI (Message Passing Interface) for distributed-memory parallel computing. 
+	\item Allows multiple R processes to communicate using standard MPI operations such as point-to-point communication, broadcasting, gathering, and reduction. \item Particularly suitable for HPC clusters, where computations can be distributed across multiple CPU cores and multiple compute nodes. 
+	\item Supports both direct MPI execution and a manager--worker model, enabling parallel simulations, numerical computations, and distributed data processing. \item Requires an MPI implementation (e.g., Open MPI) and therefore must usually be compiled against the MPI environment available on the HPC system. 
+	\item Current CRAN version: \textbf{0.7-4.1} (November 2026); see \url{https://cran.r-project.org/web/packages/Rmpi/Rmpi.pdf}. 
+\end{itemize}
 	\end{frame}
 	
 	
@@ -1215,28 +1375,40 @@ workers = 8  elapsed = 5.575
 	
 		
 	
-	\begin{frame}[fragile]{Hello word example}
-		\begin{block}{Compute smallest eigenvalue of $n\times n$ random symmetric matrices}\tiny
-			\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
-				library(Rmpi)
-				n=30
-				size <- Rmpi::mpi.comm.size(0)
-				rank <- Rmpi::mpi.comm.rank(0)
-				host <- Rmpi::mpi.get.processor.name()
-				if (rank == 0){
-					cat("size ","rank ","host ","max_eigen_value\n")
-					cat(size,rank,host,"NaN\n")
-				} else {
-					where=getwd()
-					A=matrix(rnorm(n^2),nrow=n)
-					A=A+t(A)
-					a = max(eigen(A)$values)
-					cat(size,rank,host,a,"\n")    
-				}
-			\end{lstlisting}
-		\end{block}
-	\end{frame}
-	
+\begin{frame}[fragile]{Hello world example} 
+	% Button in the upper-right corner 
+	\hfill \href{https://github.com/janezpovh/parallel-R-nov-26/blob/main/code/Rmpi_master_slave.R} {
+		\beamergotobutton{\faCopy\ Open / Copy code}} 
+		\vspace{-1mm} \begin{block} 
+			{Compute largest eigenvalue of $n\times n$ random symmetric matrices} 
+			\tiny \begin{lstlisting}[ basicstyle=\color{blue}\tiny\ttfamily, language=R, showstringspaces=false ] 
+# Load Rmpi
+library(Rmpi)
+n <- 30
+# MPI information
+size <- Rmpi::mpi.comm.size(0)
+rank <- Rmpi::mpi.comm.rank(0)
+host <- Rmpi::mpi.get.processor.name()
+
+if (rank == 0) {
+	cat("size", "rank", "host", "max_eigen_value", "\n")
+	cat(size, rank, host, "NaN", "\n")	
+} else {
+	A <- matrix(rnorm(n^2), nrow = n)
+	A <- A + t(A)
+	a <- max(eigen(A, symmetric = TRUE, only.values = TRUE)$values)
+	cat(size, rank, host, a, "\n")
+}
+# Wait until all MPI processes have finished their work
+Rmpi::mpi.barrier(0)
+
+# Finish MPI cleanly
+Rmpi::mpi.finalize()			
+\end{lstlisting} 
+		\end{block} 
+\end{frame}
+
+
 	
 	\begin{frame}[fragile]{How to distribute this task across cluster}
 		\begin{itemize}
@@ -1248,25 +1420,63 @@ workers = 8  elapsed = 5.575
 	
 	
 	\begin{frame}[fragile]{How to distribute this task across cluster}
-		\begin{block}{Compute smallest eigenvalue of $n$ symmetric matrices of size $N\times N$}\tiny
-			\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
-				#!/bin/bash
-				#SBATCH --export=ALL,LD_PRELOAD=
-				#SBATCH --job-name Rmpi
-				#SBATCH --partition=qcpu --time=02:00
-				#SBATCH --nodes=2
-				#SBATCH --ntasks-per-node 36 ## maximum is 36
-				#SBATCH --output=logs/%x_%j.out
-				#SBATCH --account dd-24-88-015
-				
-				## not needed module load OpenMPI/4.1.4-GCC-11.3.0
-				module load R/4.1.0-foss-2021a
-				srun  Rscript Rmpi_master_slave.R			
+\hfill \href{https://github.com/janezpovh/parallel-R-nov-26/blob/main/code/Job_Rmpi_direct.sbatch} {
+	\beamergotobutton{\faCopy\ Open / Copy code}} 
+\vspace{-1mm} \begin{block} 
+	{SLURM job description} 
+\begin{lstlisting}[ basicstyle=\color{blue}\fontsize{3}{4}\ttfamily, language=R, showstringspaces=false ] 
+#!/bin/bash
+#SBATCH --export=ALL,LD_PRELOAD=
+#SBATCH --job-name Rmpi
+#SBATCH --partition=qcpu
+#SBATCH --time=02:00
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node 128 ## maximum is 128
+#SBATCH --output=logs/%x_%j.out
+#SBATCH --account atr-26-4
+module --force purge
+module load R/4.4.2-gfbf-2024a
+module load OpenMPI/5.0.3-GCC-13.3.0
+export R_LIBS_USER="$HOME/R/library/4.4"
+mkdir -p "$R_LIBS_USER"
+Rscript -e '
+.libPaths(c(Sys.getenv("R_LIBS_USER"), .libPaths()))
+if (!requireNamespace("Rmpi", quietly = TRUE)) {
+	cat("Rmpi not installed - installing...\n")
+	install.packages(
+	"Rmpi",
+	lib = Sys.getenv("R_LIBS_USER"),
+	repos = "https://cloud.r-project.org"
+	)
+}
+library(Rmpi)
+cat("Rmpi OK\n")
+'
+mpirun Rscript Rmpi_master_slave.R
 \end{lstlisting}
 		\end{block}
 	\end{frame}
 
-	\begin{frame}[fragile]{Go to Barbora}
+
+\begin{frame}[fragile]{Go to Karolina}
+\begin{lstlisting}[ basicstyle=\color{blue}\fontsize{3}{4}\ttfamily, language=R, showstringspaces=false ] 
+# Copy folder code  to Karolina
+scp -i ~/.ssh/id_ed25519 -r ~/parallel-R-nov-26/code it4i-jpovh@karolina.it4i.cz:~/
+
+# Go to Karolina
+ssh -i ~/.ssh/id_ed25519 it4i-jpovh@karolina.it4i.cz
+
+#Go to folder code and run
+
+sbatch Job_Rmpi_direct.sbatch
+
+# check results in file code/logs/*.out 
+
+\end{lstlisting}
+\end{frame}
+\begin{comment}
+
+	\begin{frame}[fragile]{Go to Barbora - old}
 	\begin{itemize}\small
 		\item Create directory\\ \verb|mkdir /home/rstudio/mnt/|
 		\item copy to it files\\\tiny  \verb|Job_Rmpi_master_slave.sbatch, Rmpi_master_slave.R|
