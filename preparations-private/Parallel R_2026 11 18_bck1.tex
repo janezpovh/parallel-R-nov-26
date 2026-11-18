@@ -1,0 +1,1687 @@
+\documentclass[compress,xcolor=table]{beamer}
+\usetheme{Frankfurt}
+
+% Packages
+\usepackage[american]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{datetime}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{csquotes}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{mathtools}
+\usepackage{verbatim}
+\usepackage{fancyvrb} % for "\Verb" macro
+%\usepackage{transparent}
+\usepackage{subfiles} % Best loaded last in the preamble
+\usepackage[backend=biber,style=authoryear]{biblatex}
+
+
+
+\usepackage{hyperref} 
+\usepackage{fontawesome5}
+
+%\usepackage[style=verbose-ibid,backend=bibtex]{biblatex}
+%\addbibresource{main.bib}
+%\bibliography{main}
+
+%New colors defined below
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\newcommand{\CoG}{\textcolor{red}}
+
+\newcommand{\pp}{\pause}
+%\newcommand{\pp}{~}
+
+%Code listing style named "mystyle"
+\lstdefinestyle{mystyle}{
+  backgroundcolor=\color{backcolour},   
+  commentstyle=\color{codegreen},
+  keywordstyle=\color{magenta},
+  numberstyle=\tiny\color{codegray},
+  stringstyle=\color{codepurple},
+  basicstyle=\ttfamily\footnotesize,
+  breakatwhitespace=false,         
+  breaklines=true,                 
+  captionpos=b,                    
+  keepspaces=true,                 
+  showspaces=false,                
+  showstringspaces=false,
+  showtabs=false,                  
+  tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=white,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+\graphicspath{{images/}}
+
+% Possible options of the package (add/remove below in \usetheme call):
+%  - nosectionpages: no pages between sections
+%  - flama: use flama font, requires xelatex/lualatex + the font to compile
+%  - compressminiframes: put the heading list bullets indications pages on 1 line
+
+\usetheme[compressminiframes]{EuroCC}
+
+
+
+% Title page
+\title{Parallel data analysis with  {\tt R}}
+
+%\foottitle{foottitle} % optional, printed at the bottom of the slides, by default same as title, can be useful to rewrite when title has a newline for example
+\subtitle{EuroCC training} % optional subtitle
+\date{\formatdate{18}{11}{2026}}
+\author{prof. dr. Janez Povh \\ dr. Tomas Martinović (Rcpp)}
+
+\institute{Rudolfovo - Science and Technology Centre Novo mesto} 
+\institute{EuroHPC Competence Center, November 18, \monthyeardate{2026}} % Optional
+
+% Biblatex
+% \usepackage[backend=biber, style=apa]{biblatex}
+% \bibliography{library.bib}
+% \renewcommand*{\bibfont}{\footnotesize}
+
+%%%%
+%% BEGIN OF SLIDES
+%%%%
+
+\begin{document}
+
+% \nocite{*}
+
+{\usebackgroundtemplate{%
+  \includegraphics[width=\paperwidth,height=\paperheight]{"EuroCC Background DARK_rectangular.png"}} 
+\begin{frame}[plain]
+\titlepage
+\setcounter{framenumber}{0}
+\end{frame}
+}
+
+%{
+%\setcounter{tocdepth}{1}
+%\setbeamertemplate{section in toc}[ball unnumbered]
+%{\setbeamercolor{background canvas}{bg=EuroCCBeige}
+%\begin{frame}[plain]
+%\frametitle{Outline}
+%\tableofcontents
+%\end{frame}}
+%}
+
+%\begingroup
+%    \AtBeginSection[]{}
+%\section{Schedule} 
+%\subfile{sections/00_schedule}
+
+%\endgroup
+
+
+\section{Introduction to HPC} 
+
+
+
+
+\begin{frame}{What is HPC}
+\begin{figure}
+				\includegraphics[width=200pt]{images/LUMI2.jpg}
+
+\scriptsize Source: https://www.vyzkumne-infrastruktury.cz/en/2022/06/lumi-supercomputer-has-been-inaugurated/
+\end{figure}
+
+\end{frame}	
+
+
+
+
+\begin{frame}{What is HPC}
+	\begin{figure}
+	\begin{center}
+	\includegraphics[width=0.6\textwidth]{images/HPC_structure}
+	
+	Source: Reghenzani, F. et al,  IEEE Access, 8, 208566-208582.
+
+    \end{center}
+
+	\end{figure}
+\end{frame}	
+
+
+\begin{frame}{Node structure}
+	\begin{center}
+		\includegraphics[width=0.6\textwidth]{images/Node_Lumi}
+		
+		Source: https://docs.lumi-supercomputer.eu/hardware/lumig/
+	\end{center}
+\end{frame}
+
+
+\begin{frame}{How does my computer look like}
+	\includegraphics[width=150pt]{images/windows_task_manager.png}
+\end{frame}
+
+
+\begin{frame}{How does my computer looks like}
+	\includegraphics[width=250pt]{images/power_shell.png}
+\end{frame}
+
+\begin{comment}
+	
+\begin{frame}{How does Barbora cluster look like}
+	192 standard computing nodes (2x18 cores), 8 GPU nodes, 1 fat node (6TB RAM)
+	
+	\includegraphics[width=250pt]{images/barbora.jpg}
+\end{frame}
+
+\end{comment}
+
+
+\begin{frame}{Why HPC}
+	Some computations are (very) extensive:
+	\begin{itemize}
+		\item \CoG{cpu-extensive:} take too much cpu time\pp 
+		\item \CoG{memory-extensive:} Take too much memory\pp 
+		\item \CoG{I/O-extensive:} Take too much time to read/write from disk\pp 
+		\item \CoG{network-extensive:} Take too much time to transfer over the network.
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}{User experience}
+	\begin{center}
+		
+		\includegraphics[width=0.8\textwidth]{images/ssh.png}
+		
+	\end{center}
+\end{frame}
+
+\begin{frame}{How to access HPC}
+	HPCs are \textcolor{red}{easily} available. 
+	\begin{center}
+		\includegraphics[width=220pt]{images/HPCmap}
+		
+	\end{center}
+	
+\end{frame}
+
+\begin{frame}{EuroCC3}
+	\begin{itemize}
+		\item Network of EU Competence centers for HPC.\pp
+		\item Almost all members of EuroHPC JU involved.\pp
+		\item Training, support for industry, talent attraction,...
+	\end{itemize}
+\end{frame}
+
+
+
+
+\section{Introduction to R} 
+\subsection{Basics about R}
+
+\begin{frame}{What is R?} 
+	\begin{itemize} 
+		\item A language and environment for statistical computing 
+		\item Data manipulation, analysis, modelling, and visualization 
+		\item Based on the S programming language 
+		\item Interpreted, interactive, and highly extensible \item Core components are written in R, C, and Fortran 
+		\item Free, open source, and cross-platform 
+	\end{itemize} 
+\end{frame} 
+
+\begin{frame}{Installing R} 
+	\begin{itemize} 
+		\item Current release: R 4.6.2, 29 October 2026 
+		\item Download from CRAN: \url{https://cran.r-project.org} 
+		\item Available for Linux, macOS, and Windows \item Windows and macOS users can install precompiled binaries 
+		\item Linux users may also install R using their package manager 
+	\end{itemize} 
+\end{frame}
+
+
+
+\begin{frame}{Pros and Cons}
+	Pros:
+	\begin{itemize}
+		\item 	Free and Open Source
+		\item Strong User Community
+		\item Highly extensible, flexible
+		\item Implementation of high-end statistical methods
+		\item Flexible graphics and intelligent defaults
+	\end{itemize}\pp 
+	
+	Cons
+	\begin{itemize}
+		\item Steep learning curve
+		\item Slow for large datasets
+	\end{itemize}
+	
+\end{frame}
+
+
+
+
+\begin{frame}{Data types}
+	\begin{itemize}
+		\item R Supports virtually any type of data
+		\item 	Numbers, characters, logicals (TRUE/ FALSE)
+		\item 	Arrays of virtually unlimited sizes
+		\item 	Simplest: Vectors and Matrices
+		\item 	Lists: Can Contain mixed type variables
+		\item 	Data Frame: Rectangular Data Set
+		\item  Datasets in {\tt tidy} format.
+		
+	\end{itemize}
+\end{frame}
+
+
+
+
+\begin{frame}{Data structures in R}
+	Linear
+	\begin{itemize}
+		\item vectors (all same type)
+		\item lists (mixed types)
+	\end{itemize}\pp 
+	Rectangular
+	\begin{itemize}
+		\item data frame
+		\item matrix
+	\end{itemize}
+	
+\end{frame}
+
+%\subsection{Running R}
+
+\begin{frame}{Running R}
+	\begin{itemize}
+		\item I recommend RStudio, an IDE for R.\pp 
+		\item It is available as RStudio Desktop and \textbf{RStudio Server}, which runs on a remote server and allows accessing RStudio using a web browser.
+		
+	\end{itemize}
+	
+	
+	
+	\begin{figure}
+		\includegraphics[width=180pt]{images/rstudio2} 
+		\caption{\scriptsize \url{https://rstudio.com/products/rstudio/download/}}
+	\end{figure}
+\end{frame}
+
+
+\begin{comment}
+	
+
+\begin{frame}{RStudio on IT4I}
+	
+	\begin{itemize}
+		\item Run RStudio on VM.\pp 
+		\item \small Connect to \url{shiny.vsb.cz/auth}  \pp
+		 
+	\includegraphics[width=250pt]{images/shiny} 
+	
+	\end{itemize}
+\end{frame}
+
+
+\end{comment}
+
+\begin{frame}{Clone the data}
+	
+		Clone project from GITHUB \url{https://github.com/janezpovh/parallel-R-nov-26}
+		\includegraphics[width=180pt]{images/git1} 
+		
+\end{frame}
+
+\begin{comment}
+
+\begin{frame}{Connect to HPC using NoMachine}
+	Main steps
+	\begin{itemize}
+		\item Connect to HPCFS to gpu02 login node
+		\item Rund Rstudio on login node OR
+		\item Connect to compute node and run Rstudio on compute node. 
+	\end{itemize}
+\end{frame}
+
+
+\subsection{Connect to HPCFS}
+
+\begin{frame}{Download Nomachine Enterprise Client}
+	
+	\includegraphics[width=240pt]{images/Nomachine1.png} 	
+	
+\end{frame}	
+
+
+
+\begin{frame}{Install Nomachine Client}
+	
+	\includegraphics[width=240pt]{images/slika1} 	
+	
+\end{frame}	
+
+
+
+
+\begin{frame}{Enter data for HPCFS}
+	
+	HOST: login.hpc.fs.uni-lj.si
+	Name: whatever you want
+	
+	\includegraphics[width=240pt]{images/slika8} 	
+	
+\end{frame}	
+
+\begin{frame}
+	\includegraphics[width=240pt]{images/slika2} 	
+	
+\end{frame}	
+
+
+
+\begin{frame}{Skip autentification warning}
+	
+	\includegraphics[width=240pt]{images/slika3} 	
+	
+\end{frame}	
+
+
+\begin{frame}{Enter credentials}
+	
+	\includegraphics[width=240pt]{images/slika4} 	
+	
+\end{frame}	
+
+
+
+\begin{frame}{Create new virtual desktop}
+	
+	\includegraphics[width=240pt]{images/slika5} 	
+	
+\end{frame}	
+
+
+
+
+\begin{frame}{Define remote desktop setting}
+	
+	\includegraphics[width=240pt]{images/slika6} 	
+	
+\end{frame}	
+
+
+\begin{frame}{Define remote desktop setting}
+	
+	\includegraphics[width=240pt]{images/slika7} 	
+	
+\end{frame}	
+
+
+
+
+\subsection{Run R and Rstudio on HPC}
+
+
+\begin{frame}{Konzola/console/terminal window}
+	Open console and type 
+	\begin{itemize}
+		\item {\tt module load R}
+		\item {\tt R}
+	\end{itemize}
+	
+	\includegraphics[width=200pt]{images/slika9} 	
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]{Connect to compute node}
+	\begin{block}{Type to console}\tiny
+		\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+			LD_PRELOAD= srun -p haswell --pty --x11 bash -i 
+			module load RStudio-Server/2022.07.2-576-foss-2022a-Java-11-R-4.2.1
+			module help RStudio-Server/2022.07.2-576-foss-2022a-Java-11-R-4.2.1
+		\end{lstlisting}
+	\end{block}\pp 
+	
+	Copy the following text to command line\\
+	\includegraphics[width=240pt]{images/slika10} 	
+\end{frame}
+
+
+
+\begin{frame}{Run Rstudio on compute node}
+	\begin{itemize}
+		\item open web browser (chrome or firefow)
+		\item type in {\tt http://cnXX:8787/} - XX is the name of compute node where you are.
+		\item Note that both Rstudios (on login and compute node) can not run in parallel - only one.
+		\\
+		\includegraphics[width=240pt]{images/slika11} 			
+		
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]{GITHUB}
+	Clone data for today  from GITHUB
+	
+	\verb|https://github.com/janezpovh/Parallel_R_Jan_24.git|
+	
+	\end{frame}
+	
+\end{comment}
+
+	
+	\begin{frame}[fragile]
+\frametitle{Creating the first script file}
+\begin{block}{Create and save simple data file}\tiny
+	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+		N=1000;
+		Data=data.frame(group=character(N),ints=numeric(N),reals=numeric(N))
+		Data$group=sample(c("a","b","c"), 1000, replace=TRUE);
+		Data$ints=rbinom(N,10,0.5);
+		Data$reals=rnorm(N);
+		
+		head(Data)
+		Data
+		
+		write.table(Data, file='data/Data_Ex_1.txt', append = FALSE, dec = ".",col.names = TRUE)
+		
+		ls()
+		rm(list = ls())
+	\end{lstlisting}	
+\end{block}
+
+\vspace{-.2cm}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Load and analyse the data}
+\begin{block}{Load data}\scriptsize
+	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+		Data_read<-read.table(file='data/Data_Ex_1.txt',header = TRUE)
+		# first few rows
+		head(Data_read)
+		#10 th row
+		Data_read[10,]
+		# column group
+		Data_read$group
+		Data_read[,1]		
+	\end{lstlisting}
+\end{block}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Analyse the data}
+\begin{block}{Simple analysis}\scriptsize
+	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+		# compute means and counts by groups
+		group count_ints mean_ints
+		a | 337 | 5.014837
+		b | 338 | 5.032544
+		c | 325 | 4.990769
+		
+		# primitive solution
+		Group_lev=levels(Data_read$group)
+		
+		Tab_summary=data.frame(group=character(3),count_ints=integer(3),mean_ints=numeric(3))
+		Tab_summary$group<-Group_lev
+		for (i in c(1:3)){
+			sub_data = subset(Data_read,group==Group_lev[i])
+			Tab_summary$count_ints[i]<-nrow(sub_data)
+			Tab_summary$mean_ints[i]<-mean(sub_data$ints)
+		}
+	\end{lstlisting}
+\end{block}
+
+\end{frame}
+
+
+\begin{comment}
+	
+\begin{frame}[fragile]
+\frametitle{Analyse the data with {\tt dplyr, magrittr}}
+\begin{itemize}\scriptsize
+	\item Library {\tt dplyr}: ''select", "filter", "group\_by","arrange", "mutate" and ''summarize".
+	\item Library {magrittr}: "\%>\%"
+\end{itemize}
+\begin{block}{{\tt dplyr}}\tiny
+	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+		llibrary(dplyr)
+		library(magrittr)
+		Tab_summary1<-group_by(Data_read,group) %>% dplyr::summarise(count_ints=n(),mean_ints=mean(ints))
+		
+		# other operations on rows and columns
+		Data_read_group_ints<-Data_read %>% select(group,ints)
+		# add new variable reals/ints
+		Data_read<-mutate(Data_read,ratio=reals/ints)
+		Data_read<-Data_read %>% mutate(ratio1=ints/reals)
+		#arrange
+		#sort accordind to increasing group
+		Data_read<-Data_read %>% arrange(desc(group))
+		Data_read<-Data_read %>% arrange(group)
+	\end{lstlisting}
+\end{block}
+
+\end{frame}
+
+\end{comment}
+
+
+
+
+
+\begin{frame}[fragile]
+\frametitle{Analyze the data by  {\tt split, aggregate}}
+\begin{block}{{\tt split, aggregate}}\tiny
+	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+		s <- split(Data_read, Data_read$group)
+		Tab_summary1<-cbind(aggregate(ints~group,data = Data_read,FUN=length),aggregate(ints~group,data = Data_read,FUN=mean))
+		Tab_summary1<-Tab_summary1[,-3]
+	\end{lstlisting}
+\end{block}
+
+\end{frame}
+
+
+
+
+%\subfile{sections/01_Introduction to R}
+
+
+
+
+\section{Parallel R within one node}
+
+
+	
+	\begin{frame}[fragile]{What system do I have}
+		\begin{block}{How many cores}\tiny
+			\begin{verbatim}
+library(parallel)
+detectCores()
+> detectCores()
+[1] 20
+			\end{verbatim}
+		\end{block}\pp
+		\includegraphics[width=240pt]{images/cpu_laptop} 	
+	\end{frame}
+	
+
+	
+
+
+\subsection{Advanced and Big data management with R}
+
+
+\begin{frame}{Speed up without paralelization - vectorization}
+	\CoG{Vectorization:}
+	\begin{itemize}
+		\item a programming technique used to avoid explicit loops in order to improve the performance and readability of code.
+		\item a function can be called on a vector and operate on each element, rather than requiring a loop across elements
+		\item \CoG{Example} Use {\tt sum()} or {\tt mean()} instead of loop variant.
+	\end{itemize}
+	
+\end{frame}
+
+
+\begin{frame}{Speed up without paralelization - vectorization}
+	\CoG{Vectorization:}
+	\begin{itemize}
+		\item vectorization is faster: R is an interpreted language and not a compiled one:
+		\begin{itemize}
+			\item 		R needs to repeatedly interpret what your code means for each iteration of the loop;
+			\item each iteration of the for loop requires indexing into the main object using the subset function.
+		\end{itemize}
+		\item Vectorised functions  loop over and repeatedly indexes the main object,  but this is done in the compiled language C and has been optimized to take advantage of the fact that the elements of a vector are contiguous in memory.
+	\end{itemize}
+	
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Benchmarking}
+Let us benchmark a loop and vectorised function:
+	\begin{block}{{\tt Benchmarking}}\scriptsize
+		\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+# Library for timing comparison
+library(microbenchmark)
+
+x <- 1:100000
+microbenchmark(a = sum(x),
+b = {
+	s0 <- 0
+	for (i in seq_along(x)) {
+		s0 <- s0 + x[i]
+	}
+})
+		\end{lstlisting}
+\end{block}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{{\tt apply, lapply, sapply}}
+These are not typical vectorised functions - they are  “loop-hiding”, since they  contain implicit loops. {\tt apply} actually has a loop in its {\tt R} code. 
+	\begin{block}{{\tt apply, lapply, sapply}}\scriptsize
+		\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+apply(X, MARGIN, FUN)
+Here:
+-x: an array or matrix
+-MARGIN=1: the manipulation is performed on rows
+-MARGIN=2: the manipulation is performed on columns
+-MARGIN=c(1,2): the manipulation is performed on rows and columns
+-FUN: tells which function to apply. Built functions like mean, median, sum, min, max and even 
+user-defined functions can be applied
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+
+
+\begin{frame}[fragile]{{\tt apply}}
+	For data constructed above ({\tt Data\_read}) compute row and columns means using {\tt apply} \pp 
+	\begin{block}{{\tt apply}}\scriptsize
+		\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+Data_read<-read.table(file='data/Data_Ex_1.txt',header = TRUE)
+
+Data_col_means_1 <- colMeans(Data_read[,-1])
+Data_col_means_2 <- apply(Data_read[,-1],2,FUN =mean)
+
+Data_row_means_1 <- rowMeans(Data_read[,-1])
+Data_row_means_2 <- apply(Data_read[,-1],1,FUN =mean)
+
+Data_both_squares <- apply(Data_read[,-1],c(1,2),FUN = function(x) return(x^2))
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{{\tt lapply}}
+	
+	\begin{itemize}
+		\item {\tt lapply} function takes list, vector, matrix or data frame  as linear input and returns only list as output
+		\item {\tt sapply}  function takes list, vector, matrix or data frame  as linear input. It is similar to lapply function but returns only vector as output.
+		
+	\end{itemize}
+	
+	For data constructed above ({\tt Data\_read}) compute row and columns sums using {\tt lapply} \pp 
+	\begin{block}{{\tt lapply}}\scriptsize
+		\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+Data_col_sums_1 <- apply(Data_read[,-1],2,FUN =sum)
+Data_col_sums_2 <- lapply(Data_read[,-1],FUN =sum)
+
+typeof(Data_col_sums_1)  
+typeof(Data_col_sums_2)  
+
+
+Data_abs <- lapply(Data_read[,-1],FUN =abs)
+Data_sq <- lapply(Data_read[,-1],FUN = function(x){x^2})
+
+typeof(Data_abs)
+length(Data_abs)
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{{\tt sapply}}
+	For data constructed above ({\tt Data\_read}) compute row and columns sums using {\tt sapply} \pp 
+	\begin{block}{{\tt sapply}}\scriptsize
+		\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+Data_col_sums_1 <- apply(Data_read[,-1],2,FUN =sum)
+Data_col_sums_2 <- lapply(Data_read[,-1],FUN =sum)
+Data_col_sums_3 <- sapply(Data_read[,-1],FUN =sum)
+
+typeof(Data_col_sums_1)  
+typeof(Data_col_sums_2)  
+typeof(Data_col_sums_3)  
+
+
+Data_col_sums_4 <- lapply(list(Data_read$ints,Data_read$reals),FUN =sum)
+Data_col_sums_5 <- sapply(list(Data_read$ints,Data_read$reals),FUN =sum)
+Data_col_len_1 <- lapply(list(Data_read$ints,Data_read$reals),FUN =length)
+Data_col_len_2 <- sapply(list(Data_read$ints,Data_read$reals),FUN =length)
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+
+
+
+
+
+\begin{frame}[fragile]{{\tt for} loop}
+	Let us compute sums of all elements of $K$ random matrices of order  $N\times N$
+	\begin{block}{{\tt for}}\scriptsize
+		\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+N=1000
+K=60
+set.seed(2021)
+sum_rand=rep(0,K-1);
+tic()
+time_for_sys=system.time({
+	for (i in c(1:K)){
+		A=rand(N,N)
+		sum_rand[i]=sum(A)
+	}
+})
+time_for=toc()
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{ {\tt foreach do} loop}
+	Let us compute sums of all elements of $K$ random matrices of order  $N\times N$
+	\begin{block}{{\tt for}}\scriptsize
+		\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+set.seed(2021)
+sum_rand=rep(0,K-1);
+tic()
+time_foreach_sys=system.time({
+	foreach (i = c(1:K)) %do% {
+		A=rand(N,N)
+		sum_rand[i]=sum(A)
+	}
+})
+time_foreach=toc()
+
+> time_for_foreach
+elapsed
+time_for       1.412
+time_foreach   1.294
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Multisession (PSOCK) vs. Multicore (FORK)}
+	\begin{lstlisting}[language=R,basicstyle=\tiny]
+MULTISESSION / PSOCK               MULTICORE / FORK
+
+Main R                             Main R
+|                                  |
++-- start new R --> Worker 1       +-- fork --> Worker 1
++-- start new R --> Worker 2       +-- fork --> Worker 2
++-- start new R --> Worker 3       +-- fork --> Worker 3
++-- start new R --> Worker 4       +-- fork --> Worker 4
+
+Independent R sessions             Copies of current R process
+
+Objects transferred                Memory initially inherited
+by serialization                   via copy-on-write
+	\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}{When multisession (PSOCK)?}
+	Reasons for multisession (PSOCK):
+	\begin{itemize}
+		\item Portability: code works on Windows, Linux, macOS.
+		\item More predictable behavior with RStudio, connections, external libraries, etc.
+		\item Safety and reproducibility are more important than minimizing overhead.\pp 
+		
+		\item {\bf Cost:} objects have to be serialized and transferred to workers, so large data can create communication and memory overhead.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{When multicore (FORK)?}
+	Reasons for multicore (FORK):
+	\begin{itemize}
+		\item You are on Linux/macOS, not Windows.
+		\item Computations repeatedly use large, mostly read-only objects (copy-on-write principle).
+		\item You want fast worker creation and lower data-transfer overhead.
+		\item You know your code/libraries are fork-safe.	
+		\item {\bf Cost:} if you start changing big data objects, then data transfer is needed to workers. 
+	\end{itemize}
+\end{frame}
+
+
+
+
+\begin{frame}{Libraries {\tt parallel, doParallel}}
+	\begin{itemize}
+		\item {\tt parallel} package comes in the base R installation
+		\item {\tt parallel} works great for any task that you pass to  the apply family (e.g., lapply becomes parLapply). 
+		\item {\tt doParallel} package works great when you want to use parallel variant of for-loops (foreach--do), and might be a little easier to use.
+	\end{itemize}
+\end{frame}
+
+%\end{document}
+
+
+
+
+
+
+\begin{frame}[fragile]{{\tt doParallel}}
+\begin{itemize}\small 
+\item 	This library 
+	is meant for use with {\tt foreach}, which lets you use a particular type of for-loop, that looks like:
+	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+		foreach(i=list_of_elements) %do% {thing with i}.
+	\end{lstlisting}
+	\pp 
+	\item 
+	{\tt Foreach} allows this to be parallelized, using {\tt dopar}:
+	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+		foreach(i=listOfThings) %dopar% {thing with i}.
+	\end{lstlisting}
+	\pp 
+	\item Note that: 
+	parallelization with {\tt dopar} depends on which backend you use. 
+	\begin{itemize}
+		\item 
+		{\tt doParallel} is one such backend - it tells {\tt foreach} to use {\tt parallel}. 
+		\item There are others:  {\tt doFuture, doMPI} (another parallel backend, using message passing interface), {\tt doSnow} (another backend, using the {\tt  snow} package for creating parallel processes),...
+		\item By default, {\tt doParallel} uses multicore functionality on Unix-like systems and multisession  functionality on Windows.
+		
+	\end{itemize}
+\end{itemize}
+
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]{ Parallel {\tt foreach-dopar} loop}
+Let us compute sums of all elements of $K$ random matrices of order  $N\times N$ using {\tt foreach ...dopar} from {\tt foreach} and {\tt doParallel}
+\begin{block}{{\tt foreach do} vs. {\tt foreach dopar}}\scriptsize
+	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+N=3000
+bench_1<-microbenchmark::microbenchmark(foreach (i = c(1:K)) %dopar% {
+	library(pracma)
+	A= rand(N,N)
+	sum_rand[i]=sum(A)
+},
+foreach (i = c(1:K)) %do% {
+	A=rand(N,N)
+	sum_rand[i]=sum(A)
+},times = 10
+)
+
+     min       lq     mean   median       uq      max neval
+821.7110 844.1936 922.3553 870.8398 898.5949 1404.979    10
+842.3294 846.7332 908.1153 857.0934 871.2040 1305.258    10
+	\end{lstlisting}
+\pp
+Do you observe any difference?
+\end{block}
+
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Creating cluster with {\tt doParallel}}
+	\begin{itemize}
+		\item Option 1: (use {\tt doParallel})
+\begin{block}{Create cluster}\scriptsize
+	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+clust <- makeCluster(n_cores-1)  
+registerDoParallel(clust)  
+getDoParName()
+.
+.
+stopCluster(clust)
+#registerDoSEQ()  # alternative - register sequential mode
+	\end{lstlisting}
+\end{block}
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Creating cluster with {\tt doParallel}}
+	\begin{itemize}
+		\item Option 2: use {\tt parallel}		
+		\begin{block}{Create cluster}\scriptsize
+			\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+registerDoParallel(cores=n_cores-1)
+getDoParName()
+.
+.
+registerDoSEQ()  # alternative - register sequential mode
+			\end{lstlisting}
+		\end{block}
+		\item In linux: 
+		\begin{itemize}
+			\item the first option uses SNOW library and utilizes multisession approach  {\tt parallel::parLapply()}
+			\item the second creates FORK cluster and uses multicore approach via (it effectively utilizes {\tt parallel::mclapply()}). 
+		\end{itemize}
+		\item In windows: both use SNOW. They create PSOCK clusters and basically utilize {\tt parallel::parLapply()}
+		
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]{ Parallel {\tt foreach dopar} loop - option 1}
+Let us compute sums of all elements of $K$ random matrices of order  $N\times N$ using {\tt foreach ...dopar} from {\tt foreach, doParallel}. Create cluster!
+\begin{block}{{\tt Option 1}}\scriptsize
+	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+set.seed(2021)
+clust <- makeCluster(n_cores-1)  # use multisession, set to the number of parallel R sessions  
+registerDoParallel(clust)  
+getDoParName()
+sum_rand=rep(0,K-1);
+tic()
+time_foreachdopar_1_sys=system.time({
+	print("for each-dopar (cluster allocated)")
+	foreach (i = c(1:K)) %dopar% {
+		library(pracma)
+		A=rand(N)
+		sum_rand[i]=sum(A)
+}}
+)
+time_foreach_dopar_1=toc()
+stopCluster(clust)
+\end{lstlisting}
+\end{block}
+\end{frame}
+
+
+\begin{frame}[fragile]{ Parallel {\tt foreach dopar} loop - option 2}
+	Let us compute sums of all elements of $K$ random matrices of order  $N\times N$ using {\tt foreach ...dopar} from {\tt foreach, doParallel}. Create cluster!
+	\begin{block}{{\tt Option 2}}\scriptsize
+\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+set.seed(2021)
+registerDoParallel(n_cores-1)  # use multicore, set to the number of our cores - needed for foerach dopar
+getDoParName()
+sum_rand=rep(0,K-1);
+tic()
+time_foreachdopar_2_sys=system.time({
+	print("for each-dopar (cluster allocated)")
+	foreach (i = c(1:K)) %dopar% {
+		library(pracma)
+		A=rand(N)
+		sum_rand[i]=sum(A)
+}}
+)
+time_foreach_dopar_1=toc()
+registerDoSEQ()   #this registers sequential mode - equivalent
+\end{lstlisting}
+	\end{block}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Timings}
+	Timings
+	\begin{verbatim}
+                            user.self  sys.self  elapsed 
+time_for_sys                0.994      0.060     1.059    
+time_foreach_sys            1.148      0.046     1.201    
+time_foreachdopar_sys       0.045      0.011     0.692    
+time_foreachdopar_1_sys     0.036      0.010     0.647     
+time_foreachdopar_2_sys     0.015      0.012     0.617     
+	\end{verbatim}
+\end{frame}
+
+
+\begin{frame}{Library \texttt{parallel}: Socket/Multisession Clusters} 
+	\footnotesize 
+	\begin{itemize} 
+		\item The \texttt{parallel} package incorporates functionality from \texttt{multicore} and \texttt{snow}. \pp 
+		\item The \CoG{socket-based/multisession} approach: 
+		\begin{itemize} 
+			\item starts separate R worker processes; 
+			\item communicates with workers through sockets; \item works on Linux, macOS, and Windows; 
+			\item can use workers on the local or remote computers. 
+		\end{itemize} \pp 
+		\item Advantages: 
+		\begin{itemize} 
+			\item Independent and isolated R sessions. 
+			\item More portable and generally safer than forking. 
+		\end{itemize} \pp 
+		\item Limitations: 
+		\begin{itemize} 
+			\item Data must be serialized and transferred to workers. 
+			\item Packages and objects may need to be loaded or exported. 
+			\item Worker creation and communication introduce overhead. 
+			\end{itemize} \pp 
+		\item Typical functions: \texttt{makeCluster()}, \texttt{parLapply()}, and \texttt{parSapply()}. 
+	\end{itemize} 
+\end{frame}
+
+
+
+\begin{frame}{Library \texttt{parallel}: Fork-Based Parallelism} 
+	\footnotesize
+	\begin{itemize} 
+		\item The \CoG{forking} approach creates worker processes as copies of the current R process.  
+		\item Forked workers are used by \texttt{mclapply()}. \pp
+		\item Advantages: 
+		\begin{itemize} 
+			\item Workers are fast to create. 
+			\item Workers initially inherit the current R session, including loaded packages, functions, and objects. 
+			\item Memory pages are initially shared using \emph{copy-on-write}. 
+			\item It is particularly efficient for large, mostly read-only objects. 
+			\end{itemize} \pp \item Limitations: 
+			\begin{itemize} \item Forking is available on Unix-like systems, such as Linux and macOS, but not on Windows. 
+				\item Modified memory pages must be copied separately for each worker. 
+				\item Some libraries, connections, threads, and graphical interfaces may not be fork-safe. 
+				\item Parallel random-number generation must be handled carefully to ensure independent and reproducible streams. 
+			\end{itemize} 
+		\end{itemize} 
+	\end{frame}
+
+\begin{frame}[fragile]{ Parallel versions of {\tt lapply}}
+By using library {\tt parallel } and {\tt parSapply, mclapply}	compute sums of all elements of $K$ random matrices of order  $N\times N$. Create cluster!
+\begin{block}{ parallel versions of {\tt apply}}\tiny
+	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+mat_sum<-function(x){
+	library(pracma)
+	A=rand(x)
+	return(sum(A))
+}
+
+time_lapply<-system.time({
+	set.seed(2021)
+	sum_rand_lapply=lapply(rep(N,K),FUN=mat_sum)
+})
+
+time_sapply<-system.time({
+	set.seed(2021)
+	sum_rand_sapply=sapply(rep(N,K),FUN=mat_sum)
+})
+		
+	\end{lstlisting}
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{ Parallel versions of {\tt lapply}}
+\begin{block}{ parallel versions of {\tt apply}}\tiny
+	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+#forking
+time_mcLapply<-system.time({
+	set.seed(2021)
+	sum_rand_mcLapply=mclapply(X=rep(N,K),FUN=mat_sum,mc.cores = n_cores)
+})
+
+# socketing/multisession
+clust <- makeCluster(n_cores, type="PSOCK")  
+time_parLapply<-system.time({
+	set.seed(2021)
+	sum_rand_parLapply=parLapply(clust,rep(N,K),fun=mat_sum)
+})
+stopCluster(clust)
+
+clust <- makeCluster(n_cores, type="PSOCK")  
+time_parSapply<-system.time({
+	set.seed(2021)
+	sum_rand_parSapply=parSapply(clust,rep(N,K),FUN=mat_sum)
+})
+stopCluster(clust) 	
+	\end{lstlisting}
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{ Parallel versions of {\tt lapply}}
+\begin{block}{ parallel versions of {\tt apply} - 2 cores}\tiny
+	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+		times_apply<-rbind(time_lapply,time_sapply,time_parLapply,time_parSapply,time_mcLapply) 
+		
+		> times_apply[,1:3]
+                   user.self  sys.self elapsed
+               user.self sys.self elapsed
+time_lapply        1.050    0.168   1.227
+time_sapply        1.021    0.171   1.201
+time_parLapply     0.002    0.002   0.568
+time_parSapply     0.002    0.001   0.570
+time_mcLapply      0.001    0.008   0.643
+\end{lstlisting}
+\end{block}
+\end{frame}
+
+
+\begin{frame}[fragile]{Very parallelizable task}
+	\begin{block}{Perfectly parallelizable computing task}\tiny
+		\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+			# simple very parallel
+			library(parallel)
+			library(tictoc)
+			
+			f <- function(...) {
+				Sys.sleep(1) 
+				"DONE"
+			}
+			
+			
+			for (p in 1:8) {
+				t <- system.time(
+				mclapply(1:25, f, mc.cores = p)
+				)	
+				cat("workers =", p,
+				" elapsed =", t["elapsed"], "\n")
+			}
+			
+			workers = 1  elapsed = 25.005 
+			workers = 2  elapsed = 13.008 
+			workers = 3  elapsed = 9.005 
+			workers = 4  elapsed = 7.006 
+			workers = 5  elapsed = 5.013 
+			workers = 6  elapsed = 5.006 
+			workers = 7  elapsed = 4.01 
+			workers = 8  elapsed = 4.005 
+			
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+
+
+\begin{frame}[fragile]{Not so parallelizable task}
+	\begin{block}{Weakly parallelizable computing task}\tiny
+		\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+			# simple very parallel
+			library(parallel)
+			library(tictoc)
+			
+			g <- function(...) {
+				sum(rnorm(1e7))
+			}
+			
+			for (p in 1:8) {
+				t <- system.time(
+				mclapply(1:25, g, mc.cores = p)
+				)	
+				cat("workers =", p,
+				" elapsed =", t["elapsed"], "\n")
+			}
+			
+			workers = 1  elapsed = 10.431 
+			workers = 2  elapsed = 5.524 
+			workers = 3  elapsed = 5.634 
+			workers = 4  elapsed = 5.667 
+			workers = 5  elapsed = 5.624 
+			workers = 6  elapsed = 5.886 
+			workers = 7  elapsed = 5.594 
+			workers = 8  elapsed = 5.575 
+			
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+
+
+\begin{frame}{Summary: libraries for shared memory parallelization in {\tt R}}
+\begin{itemize}
+	\item Parallel for-loop ({\tt foreach...dopar}). Cluster created by {\tt registerDoParallel(N)} and {\tt registerDoSEQ()}. Library {\tt foreach, doParalel} needed. Type of parallelization: multisession (socket, with call makeCluster, stopCluster), multicore (fork) if use registerDoparalel, registerDoSEQ
+	\item Parallel {\tt apply}:  needs library {\tt parallel}. {\tt parLapply, parSapply} create multisession (socket), while mclapply creates multicore 
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{The \texttt{future} package?} 
+	\begin{block}{One interface -- different execution strategies} 
+\footnotesize 
+	\begin{itemize}
+		\item \texttt{future} separates \CoG{what to compute} from \CoG{how and where to compute it}. 
+		\item The same R code can run sequentially, with independent R sessions (\CoG{\texttt{multisession}}), or using forked processes (\CoG{\texttt{multicore}}). 
+		\item No need to explicitly create, manage, export data to, and stop clusters. 
+		\item Required globals and packages are automatically identified and made available to workers. 
+		\item Changing the parallelization strategy often requires changing only the \texttt{plan()}. 
+		\end{itemize} 
+		\begin{alertblock}{Main idea} \centering \textbf{Write the computation once -- choose the execution strategy separately.} 
+		\end{alertblock} 
+\pp
+		\begin{lstlisting}[language=R] 
+plan(sequential) # no parallelization 
+plan(multisession, workers = 4) # PSOCK workers 
+plan(multicore, workers = 4) # forked workers (Linux/macOS) 
+\end{lstlisting} 
+\end{block} 
+\end{frame}
+
+\begin{frame}[fragile]{Example with future}
+Run this function in serial, multisession and multicore mode.\\
+	
+\begin{lstlisting}[language=R]
+# One computationally expensive task
+f <- function(i) {
+	x <- rnorm(5e6)
+	c(task = i, statistic = mean(exp(x)))
+}
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}[fragile]{Run R scrip in three modes}
+	\hfill \href{https://github.com/janezpovh/parallel-R-nov-26/blob/main/code/Rscripts_part3_future.R} {
+	\beamergotobutton{\faCopy\ Open / Copy code}} 
+		\vspace{-1mm} \begin{block} 
+	{Run function in three modes} 
+	\tiny \begin{lstlisting}[ basicstyle=\color{blue}\tiny\ttfamily, language=R, showstringspaces=false ] 
+library(future)
+library(future.apply)
+n_tasks <- 8
+n_workers <- 2
+
+# One computationally expensive task
+f <- function(i) {
+	x <- rnorm(5e6)
+	c(task = i, statistic = mean(exp(x)))
+}
+
+# 1. Sequential
+plan(sequential)
+set.seed(2026)
+t_seq <- system.time({
+	res_seq <- future_lapply(
+	1:n_tasks, f,
+	future.seed = TRUE
+	)
+})
+	\end{lstlisting} 
+\end{block} 
+	
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]{Run R scrip in three modes - results}
+\begin{block}{Results} 
+ \begin{lstlisting}[ basicstyle=\color{blue}\tiny\ttfamily, language=R, showstringspaces=false ] 
+			> print(times)
+			sequential.elapsed   multisession.elapsed    multicore.elapsed 
+			2.878                2.007                   1.743 
+\end{lstlisting} 
+\end{block} 
+	
+\end{frame}
+
+
+
+
+\begin{frame}{Why library \texttt{future}?} 
+	\small 
+	\begin{itemize}
+		\item With \texttt{parallel} and \texttt{doParallel}, the code is more tightly connected to the way parallel workers are created: 
+		\begin{itemize} 
+			\item \texttt{makeCluster(), parLapply(), stopCluster()} 
+			\item \texttt{registerDoParallel(), \%dopar\%} 
+		\end{itemize} 
+		\item \texttt{future} separates two questions: 
+		\begin{itemize} 
+				\item {What} computation should be performed? 
+				\item {How and where} should it be performed? 
+		\end{itemize} 
+	\end{itemize} 
+\end{frame}
+
+
+
+
+
+\begin{frame}[fragile]{Cross-validation of models}
+\begin{itemize}
+	\item 	Suppose we want to cretae $N$ GLM models, where training data sets is random sample of size 70\%, and test data sets is the remaing set. 
+	\item If $N=10$ and we use 10\% training set, we have the usual 10-fold cross-validation.
+	\item We do it on dataset {\tt K\_data\_clean.txt}.
+	\item Use {\tt R} script {\tt parallel\_cross-validation.R}
+	\item Timings with 10 cores
+		\begin{verbatim}
+		            user.self  sys.self   elapsed
+        time_ser    139.71     0.11       141.89    
+        time_par      0.76     0.13        30.82    
+ \end{verbatim}
+\end{itemize}
+\end{frame}
+
+%\section{Advanced and Big data management with R}
+%\subfile{sections/02_advanced data analysis with R}
+
+	
+	
+\section{Parallelization with Rmpi}
+%\subfile{sections/04_Rmpi}
+
+
+
+
+	
+	\begin{frame}[fragile]{What  is Rmpi}
+\begin{itemize} \footnotesize
+	\item \texttt{Rmpi}: an R interface to MPI (Message Passing Interface) for distributed-memory parallel computing. 
+	\item Allows multiple R processes to communicate using standard MPI operations such as point-to-point communication, broadcasting, gathering, and reduction. \item Particularly suitable for HPC clusters, where computations can be distributed across multiple CPU cores and multiple compute nodes. 
+	\item Supports both direct MPI execution and a manager--worker model, enabling parallel simulations, numerical computations, and distributed data processing. \item Requires an MPI implementation (e.g., Open MPI) and therefore must usually be compiled against the MPI environment available on the HPC system. 
+	\item Current CRAN version: \textbf{0.7-4.1} (November 2026); see \url{https://cran.r-project.org/web/packages/Rmpi/Rmpi.pdf}. 
+\end{itemize}
+	\end{frame}
+	
+	
+	\begin{frame}{Few basic command}
+		\begin{itemize}
+			\item {\tt Rmpi::mpi.comm.size(0)}: returns the number of active processes in current computing task/job
+			\item {\tt Rmpi::mpi.comm.rank(0)}: returns the ID of current process (number from $\{0,1,2,\ldots,\mbox{size}-1\}$ 
+			\item {\tt Rmpi::mpi.get.processor.name()} - returns the name of compute node where the process runs.
+		\end{itemize}
+	\end{frame}
+	
+	
+		
+	
+\begin{frame}[fragile]{Hello world example} 
+	% Button in the upper-right corner 
+	\hfill \href{https://github.com/janezpovh/parallel-R-nov-26/blob/main/code/Rmpi_master_slave.R} {
+		\beamergotobutton{\faCopy\ Open / Copy code}} 
+		\vspace{-1mm} \begin{block} 
+			{Compute largest eigenvalue of $n\times n$ random symmetric matrices} 
+			\tiny \begin{lstlisting}[ basicstyle=\color{blue}\tiny\ttfamily, language=R, showstringspaces=false ] 
+# Load Rmpi
+library(Rmpi)
+n <- 30
+# MPI information
+size <- Rmpi::mpi.comm.size(0)
+rank <- Rmpi::mpi.comm.rank(0)
+host <- Rmpi::mpi.get.processor.name()
+
+if (rank == 0) {
+	cat("size", "rank", "host", "max_eigen_value", "\n")
+	cat(size, rank, host, "NaN", "\n")	
+} else {
+	A <- matrix(rnorm(n^2), nrow = n)
+	A <- A + t(A)
+	a <- max(eigen(A, symmetric = TRUE, only.values = TRUE)$values)
+	cat(size, rank, host, a, "\n")
+}
+# Wait until all MPI processes have finished their work
+Rmpi::mpi.barrier(0)
+
+# Finish MPI cleanly
+Rmpi::mpi.finalize()			
+\end{lstlisting} 
+		\end{block} 
+\end{frame}
+
+
+	
+	\begin{frame}[fragile]{How to distribute this task across cluster}
+		\begin{itemize}
+			\item Save the scripts from previous slide into separate file, called e.g. \verb|Rmpi_master_slave.R|
+			\item  Create separate \verb|.batch| file, where the parallelization is defined, e.g., 
+			\verb|Job_Rmpi_master_slave.sbatch|
+		\end{itemize}
+	\end{frame}
+	
+	
+	\begin{frame}[fragile]{How to distribute this task across cluster}
+\hfill \href{https://github.com/janezpovh/parallel-R-nov-26/blob/main/code/Job_Rmpi_direct.sbatch} {
+	\beamergotobutton{\faCopy\ Open / Copy code}} 
+\vspace{-1mm} \begin{block} 
+	{SLURM job description} 
+\begin{lstlisting}[ basicstyle=\color{blue}\fontsize{3}{4}\ttfamily, language=R, showstringspaces=false ] 
+#!/bin/bash
+#SBATCH --export=ALL,LD_PRELOAD=
+#SBATCH --job-name Rmpi
+#SBATCH --partition=qcpu
+#SBATCH --time=02:00
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node 128 ## maximum is 128
+#SBATCH --output=logs/%x_%j.out
+#SBATCH --account atr-26-4
+module --force purge
+module load R/4.4.2-gfbf-2024a
+module load OpenMPI/5.0.3-GCC-13.3.0
+export R_LIBS_USER="$HOME/R/library/4.4"
+mkdir -p "$R_LIBS_USER"
+Rscript -e '
+.libPaths(c(Sys.getenv("R_LIBS_USER"), .libPaths()))
+if (!requireNamespace("Rmpi", quietly = TRUE)) {
+	cat("Rmpi not installed - installing...\n")
+	install.packages(
+	"Rmpi",
+	lib = Sys.getenv("R_LIBS_USER"),
+	repos = "https://cloud.r-project.org"
+	)
+}
+library(Rmpi)
+cat("Rmpi OK\n")
+'
+mpirun Rscript Rmpi_master_slave.R
+\end{lstlisting}
+		\end{block}
+	\end{frame}
+
+
+\begin{frame}[fragile]{Go to Karolina}
+\begin{lstlisting}[ basicstyle=\color{blue}\fontsize{3}{4}\ttfamily, language=R, showstringspaces=false ] 
+# Copy folder code  to Karolina
+scp -i ~/.ssh/id_ed25519 -r ~/parallel-R-nov-26/code it4i-jpovh@karolina.it4i.cz:~/
+
+# Go to Karolina
+ssh -i ~/.ssh/id_ed25519 it4i-jpovh@karolina.it4i.cz
+
+#Go to folder code and run
+
+sbatch Job_Rmpi_direct.sbatch
+
+# check results in file code/logs/*.out 
+
+\end{lstlisting}
+\end{frame}
+\begin{comment}
+
+	\begin{frame}[fragile]{Go to Barbora - old}
+	\begin{itemize}\small
+		\item Create directory\\ \verb|mkdir /home/rstudio/mnt/|
+		\item copy to it files\\\tiny  \verb|Job_Rmpi_master_slave.sbatch, Rmpi_master_slave.R|
+		\item \small mount this directory \\\tiny  
+		\verb|sshfs -o IdentityFile=/home/rstudio/.ssh/id_ed25519 it4i-jpovh@barbora.it4i.cz:. /home/rstudio/mnt/|  OR \\
+		\verb|bash barbora_mount|
+		\item \small connect to barbora with ssh \\\tiny 
+		\verb|ssh -i /home/rstudio/.ssh/id_ed25519 it4i-jpovh@barbora.it4i.cz|  OR \\
+		\verb|bash barbora_login|
+		\item \normalsize If troubles with data format\\
+		\verb|sed -i 's/\r$//' <your_script.sh>|
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Connect to Barbora}
+	\includegraphics[width=200pt]{images/barbora}
+
+\begin{itemize}
+	\item 	Run \\ \small\verb|sbatch Job_Rmpi_master_slave.sbatch|
+\end{itemize}
+
+
+\end{frame}
+
+	
+	
+	\begin{frame}[fragile]{Results in log file}
+			Results in folder {\tt ~mnt/logs}.
+		
+		\begin{verbatim}
+			[1] "size rank host max_eigen_value"
+			[1] "384 0 cn48 NaN"
+			[1] "384 110 cn50 8.25199803297607"
+			[1] "384 173 cn52 8.01187455128492"
+			[1] "384 68 cn49 8.05800653948316"
+			[1] "384 200 cn53 8.81600769867893"
+			[1] "384 258 cn54 8.12244071842822"
+			[1] "384 332 cn55 7.61927646789373"
+			[1] "384 338 cn56 4.9472190383247"
+		\end{verbatim}
+		
+	\end{frame}
+	
+	
+	\begin{frame}[fragile]{Connect to Barbora}
+		\begin{itemize}
+			\item Time needed for the job\scriptsize
+			\begin{verbatim}
+				[it4i-jpovh@login2.barbora ~]$ sacct --format=JobID,JobName,State,Elapsed
+				JobID           JobName      State    Elapsed 
+				------------ ---------- ---------- ---------- 
+				717928             Rmpi  COMPLETED   00:00:08 
+				717928.batch      batch  COMPLETED   00:00:08 
+				717928.exte+     extern  COMPLETED   00:00:08 
+				717928.0        Rscript  COMPLETED   00:00:05 				
+			\end{verbatim}
+			
+		\end{itemize}
+		
+		
+	\end{frame}
+	
+	\begin{frame}[fragile]{How parallelise without slurm?}
+		\begin{block}{Compute smallest eigenvalue of $n$ symmetric matrices of size $N\times N$}\tiny
+			\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+				rm(list=ls())  # R code: parallel version 
+				library(snow) 
+				library(Rmpi)  
+				nclus=6  
+				cl <-snow::makeMPIcluster(nclus)  #alter either n or mc to affect run time 
+				n=30 
+				N_per_proc=100  
+				#x=matrix(runif(n),n,1) 
+				#x=cbind(1,x)  
+				min_eig_values=function(n,N){
+					a=c()
+					for (ind in 1:N){
+						A=matrix(rnorm(n^2),nrow=n)
+						A=A+t(A)
+						a[ind] = max(eigen(A)$values)
+					}
+					return(a)
+				}  
+				ptim=proc.time()[3]  
+				b=clusterCall(cl,min_eig_values,n=n,N=N_per_proc)  
+				b=unlist(b)
+				hist(b)
+				tim=proc.time()[3]-ptim  
+				#Rmpi::mpi.quit()
+				snow::stopCluster(cl) 
+			\end{lstlisting}
+		\end{block}
+	\end{frame}
+	
+
+\end{comment}
+
+%\input{parallel_R_2026_updates}
+
+
+\begin{frame}{Rcpp}
+	\begin{itemize}
+		\item It is a package originally develop by Dirk Eddelbuettel and
+		Romain François
+		\item It aims to ease the extension of {\tt R} with C++ code.
+		\item  It allows to load C++ code in an interactive session.
+		\item  It has framework to help when creating package with {\tt Rcpp}
+		\item {\tt Credit:} this content was prepared based on materials from dr. Tomas Martinovic from Technical university Ostrava.
+	\end{itemize}
+	
+\end{frame}
+
+\begin{frame}[fragile]{Create C++ function within {\tt R}}
+\begin{itemize}
+	\item Create C++ function within {\tt R} by using {\tt cppFunction()}
+	
+	\item {\tt Rcpp} does all the nasty work (compiling, linking)
+	
+	
+\end{itemize}
+\end{frame}
+	
+	
+	
+\begin{frame}[fragile]{Mandelbrot set}
+	\footnotesize
+		\begin{itemize} 
+			\item Two-dimensional set: simple definition, great complexity, 
+			\item \CoG{Definition:} The Mandelbrot set is set of all points $c$ in complex plane  for which the sequence 
+			$${\displaystyle z_{n+1}=z_n^{2}+c}$$ does not diverge to infinity when iterated starting at $z_1=c$.
+			\item \CoG{Theorem:} Complex point $c$ is in the Mandelbrot set if and only if $|z_n|\le 2$, for all $n\in \mathbb{N}$.
+			\end{itemize}\pp 
+		\CoG{Visualization:} (maximum number of iterations is 100)
+		\begin{center}
+\includegraphics[width=140pt]{images/mandelbrot1.png}		
+			
+		\end{center} 
+\end{frame}
+	
+\begin{frame}[fragile]{Inner algorithm in {\tt R}}
+For any point $c=a+ib\in\mathbb{C}$ we check, if it is in the Mandelbrot set by the following procedure:
+\footnotesize 
+\begin{verbatim}
+mandelbrot <- function(c, max_iter = 100) {
+  z <- c
+  for (i in 1:max_iter-1) {
+    z <- z ^ 2 + c
+    if (abs(z) > 2) {
+      return(i)
+    }
+  }
+  return(max_iter)
+}
+\end{verbatim}
+
+\end{frame}
+	
+
+\begin{frame}[fragile]{Inner algorithm in C++}
+	C++ code for the inner algorithm using {\tt Rcpp}:
+	\scriptsize 
+\begin{verbatim}
+Rcpp::cppFunction(
+"
+int Mandel(double real, double im, int max_iter = 100)
+{
+  std::complex<double> c(real, im);
+  std::complex<double> z = c;
+  for (int i=0; i< max_iter; i++){
+    z = z * z + c;
+    if (std::abs(z) > 2) {
+      return i;
+    }
+  }
+  return max_iter;
+}
+"
+)
+\end{verbatim}
+\end{frame}
+
+\begin{frame}{Outer (meta) algorithm}
+
+\begin{itemize}
+	\item[1.] Input: $A$ - discrete rectangular grid of complex points between $c_{\min}=-1.5-i$ and $c_{\max}=0.5+i$ with resolution 1000 in each dimension.
+	\item[2.] For every point $c\in A$ check, if it is in the Mandelbrot set by the inner algorithm.
+	\item[3.] Visualise the results.
+\end{itemize}	
+\end{frame}
+
+
+
+
+\begin{frame}{Three implementations}
+	
+	\begin{itemize}
+		\item[1.] The outer and the inner algorithm written in {\tt R}
+		\item[2.] The outer in {\tt R }and the inner algorithm in {\tt C++}
+		\item[3.] The outer and the inner algorithm written in {\tt C++}
+	\end{itemize}	\pp 
+	\includegraphics[width=250pt]{images/mandelbrot}
+\end{frame}
+
+
+
+\end{document}
+

@@ -1,0 +1,34 @@
+\frametitle{Mandelbrot: key changes}
+\vspace{-0.6em}\footnotesize
+	\CoG{1.} Load the package and its header:
+	\tiny
+	\begin{verbatim}
+		cppFunction(depends = "RcppParallel", includes = "#include <RcppParallel.h>", ...)
+	\end{verbatim}
+	\vspace{-0.6em}\footnotesize
+	\CoG{2.} Loop body moves into a \CoG{Worker}; each thread gets only rows {\tt [begin, end)}:
+	\tiny
+	\begin{verbatim}
+		struct MandelWorker : public RcppParallel::Worker {
+			const RcppParallel::RVector<double> xs, ys;  // thread-safe views of inputs
+			RcppParallel::RMatrix<int> out;              // thread-safe view of output
+			void operator()(std::size_t begin, std::size_t end) {
+				for (std::size_t i = begin; i < end; i++)  // was: i = 0 .. resolution-1
+				...                                      // inner loops unchanged
+			}
+		};
+	\end{verbatim}
+	\vspace{-0.6em}\footnotesize
+	\CoG{3.} Allocate output on the main thread, then replace the loop by {\tt parallelFor}:
+	\tiny
+	\begin{verbatim}
+		IntegerMatrix out(x.size(), y.size());
+		MandelWorker worker(x, y, out, max_iter);
+		RcppParallel::parallelFor(0, x.size(), worker);
+	\end{verbatim}
+	\vspace{-0.6em}\footnotesize
+	\CoG{4.} Set the number of threads from R:
+	\tiny
+	\begin{verbatim}
+		RcppParallel::setThreadOptions(numThreads = 4)
+	\end{verbatim}
