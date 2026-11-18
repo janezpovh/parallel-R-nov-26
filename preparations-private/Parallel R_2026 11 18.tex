@@ -85,7 +85,7 @@
 \author{prof. dr. Janez Povh \\ dr. Tomas Martinović (Rcpp)}
 
 \institute{Rudolfovo - Science and Technology Centre Novo mesto} 
-\institute{EuroHPC Competence Center, November 18, \monthyeardate{20264}} % Optional
+\institute{EuroHPC Competence Center, November 18, \monthyeardate{2026}} % Optional
 
 % Biblatex
 % \usepackage[backend=biber, style=apa]{biblatex}
@@ -213,10 +213,10 @@
 	
 \end{frame}
 
-\begin{frame}{EuroCC2}
+\begin{frame}{EuroCC3}
 	\begin{itemize}
 		\item Network of EU Competence centers for HPC.\pp
-		\item All members of EuroHPC JU involved.\pp
+		\item Almost all members of EuroHPC JU involved.\pp
 		\item Training, support for industry, talent attraction,...
 	\end{itemize}
 \end{frame}
@@ -227,25 +227,25 @@
 \section{Introduction to R} 
 \subsection{Basics about R}
 
-\begin{frame}{What is R}
-	\begin{itemize}
-		\item Software for Statistical Data Analysis
-		\item  Based on S
-		\item Cores routines are written and Fortran
-		\item  Programming Environment
-		\item  Interpreted Language
-		\item  Data Storage, Analysis, Visualization
-		\item  Free and Open Source Software
-	\end{itemize}
+\begin{frame}{What is R?} 
+	\begin{itemize} 
+		\item A language and environment for statistical computing 
+		\item Data manipulation, analysis, modelling, and visualization 
+		\item Based on the S programming language 
+		\item Interpreted, interactive, and highly extensible \item Core components are written in R, C, and Fortran 
+		\item Free, open source, and cross-platform 
+	\end{itemize} 
+\end{frame} 
+
+\begin{frame}{Installing R} 
+	\begin{itemize} 
+		\item Current release: R 4.6.2, 29 October 2026 
+		\item Download from CRAN: \url{https://cran.r-project.org} 
+		\item Available for Linux, macOS, and Windows \item Windows and macOS users can install precompiled binaries 
+		\item Linux users may also install R using their package manager 
+	\end{itemize} 
 \end{frame}
 
-\begin{frame}{How to obtain R}
-	\begin{itemize}
-		\item R current version 4.4.1 (released June 2024).
-		\item \url{http://cran.r-project.org}
-		\item Binary/Windows executable code
-	\end{itemize}
-\end{frame}
 
 
 \begin{frame}{Pros and Cons}
@@ -311,7 +311,7 @@
 	
 	
 	\begin{figure}
-		\includegraphics[width=180pt]{images/rstudio1} 
+		\includegraphics[width=180pt]{images/rstudio2} 
 		\caption{\scriptsize \url{https://rstudio.com/products/rstudio/download/}}
 	\end{figure}
 \end{frame}
@@ -336,7 +336,7 @@
 
 \begin{frame}{Clone the data}
 	
-		Clone project from GITHUB \url{https://github.com/janezpovh/parallel-R-sep-24}
+		Clone project from GITHUB \url{https://github.com/janezpovh/parallel-R-nov-26}
 		\includegraphics[width=180pt]{images/git1} 
 		
 \end{frame}
@@ -713,8 +713,8 @@ Data_both_squares <- apply(Data_read[,-1],c(1,2),FUN = function(x) return(x^2))
 \begin{frame}[fragile]{{\tt lapply}}
 	
 	\begin{itemize}
-		\item {\tt lapply} function takes list, vector or data frame  as input and returns only list as output
-		\item {\tt sapply}  function takes list, vector or data frame  as input. It is similar to lapply function but returns only vector as output.
+		\item {\tt lapply} function takes list, vector, matrix or data frame  as linear input and returns only list as output
+		\item {\tt sapply}  function takes list, vector, matrix or data frame  as linear input. It is similar to lapply function but returns only vector as output.
 		
 	\end{itemize}
 	
