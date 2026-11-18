@@ -1680,6 +1680,55 @@ int Mandel(double real, double im, int max_iter = 100)
 \end{frame}
 
 
+\begin{frame}{What is {\tt RcppParallel}}
+	\small
+	\begin{itemize}
+		\item Parallel algorithms for {\tt Rcpp} code, built on \CoG{Intel TBB}.
+		\item \CoG{Threads}, not processes: shared memory $\Rightarrow$ no data copying, no cluster set-up, low overhead.
+		\item You write a \CoG{Worker}: a {\tt struct} whose {\tt operator()(begin, end)} processes a range of indices.
+		\item {\tt parallelFor(begin, end, worker)} splits the range into chunks and runs them on a thread pool with \CoG{work stealing} (automatic load balancing).
+		\item {\tt RVector}/{\tt RMatrix}: thread-safe views of R memory allocated beforehand on the main thread.
+		\item \CoG{Rule:} no R API inside the worker (no {\tt Rcpp} objects, allocation, {\tt Rprintf}) -- R is single-threaded.
+		\item Threads set from R: {\tt setThreadOptions(numThreads = 4)}
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]{Mandelbrot: key changes}
+\vspace{-0.6em}\footnotesize
+\CoG{1.} Load the package and its header:
+\tiny
+\begin{verbatim}
+cppFunction(depends = "RcppParallel", includes = "#include <RcppParallel.h>", ...)
+\end{verbatim}
+\vspace{-0.6em}\footnotesize
+\CoG{2.} Loop body moves into a \CoG{Worker}; each thread gets only rows {\tt [begin, end)}:
+\tiny
+\begin{verbatim}
+struct MandelWorker : public RcppParallel::Worker {
+  const RcppParallel::RVector<double> xs, ys;  // thread-safe views of inputs
+  RcppParallel::RMatrix<int> out;              // thread-safe view of output
+  void operator()(std::size_t begin, std::size_t end) {
+    for (std::size_t i = begin; i < end; i++)  // was: i = 0 .. resolution-1
+      ...                                      // inner loops unchanged
+  }
+};
+\end{verbatim}
+\vspace{-0.6em}\footnotesize
+\CoG{3.} Allocate output on the main thread, then replace the loop by {\tt parallelFor}:
+\tiny
+\begin{verbatim}
+IntegerMatrix out(x.size(), y.size());
+MandelWorker worker(x, y, out, max_iter);
+RcppParallel::parallelFor(0, x.size(), worker);
+\end{verbatim}
+\vspace{-0.6em}\footnotesize
+\CoG{4.} Set the number of threads from R:
+\tiny
+\begin{verbatim}
+RcppParallel::setThreadOptions(numThreads = 4)
+\end{verbatim}
+\end{frame}
 
 \end{document}
 
