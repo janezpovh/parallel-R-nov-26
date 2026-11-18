@@ -67,7 +67,24 @@ Tab_summary2<-cbind(aggregate(ints~group,data = Data_read,FUN=length),aggregate(
 
 #*****************
 library(parallel)
-detectCores()
+n_cores_server=parallel::detectCores() # How many CPUs does the machine expose?"
+n_cores=availableCores()               # How many CPUs am I actually allowed/expected to use?
+
+
+
+
+# Library for timing comparison
+library(microbenchmark)
+
+x <- 1:10000000
+microbenchmark(a = sum(x),
+               b = {
+                 s0 <- 0
+                 for (i in seq_along(x)) {
+                   s0 <- s0 + x[i]
+                 }
+               })
+
 
 
 
@@ -127,3 +144,4 @@ Data_col_sums_5 <- sapply(list(Data_read$ints,Data_read$reals),FUN =sum)
 Data_col_len_1 <- lapply(list(Data_read$ints,Data_read$reals),FUN =length)
 Data_col_len_2 <- sapply(list(Data_read$ints,Data_read$reals),FUN =length)
 
+Data_col_abs_1 <- sapply(Data_read[,-1],FUN =abs)

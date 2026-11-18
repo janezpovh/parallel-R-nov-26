@@ -158,8 +158,9 @@ time_par<-system.time({
 
 times_summary<-rbind(time_ser,time_par) 
 
-
-# improved by copilot
+##########################################
+# FINAL
+##########################################
 library(doParallel)
 library(foreach)
 
@@ -310,7 +311,7 @@ benchmark_titanic <- function(N = 1000L, workers = 3L) {
   )
 }
 
-out <- benchmark_titanic(N = 1000L, workers = 3L)
+out <- benchmark_titanic(N = 1000L, workers = 2L)
 
 out$timings
 out$speedup_excluding_startup

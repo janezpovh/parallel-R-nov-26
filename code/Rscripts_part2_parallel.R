@@ -61,6 +61,9 @@ time_foreach_sys=system.time({
 })
 time_foreach=toc()
 
+
+time_for_foreach<-rbind(time_for,time_foreach)
+
 #************************************************
 #  foreach dopar - no cluster
 #************************************************
@@ -76,6 +79,7 @@ foreach (i = c(1:K)) %dopar% {
 }}
 )
 time_foreach_dopar=toc()
+
 
 
 
@@ -245,7 +249,7 @@ g <- function(...) {
 
 for (p in 1:8) {
   t <- system.time(
-    mclapply(1:25, g, mc.cores = p)
+    mclapply(1:25, f, mc.cores = p)
   )
   
   cat("workers =", p,
