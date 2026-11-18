@@ -17,6 +17,12 @@
 %\usepackage{transparent}
 \usepackage{subfiles} % Best loaded last in the preamble
 \usepackage[backend=biber,style=authoryear]{biblatex}
+
+
+
+\usepackage{hyperref} 
+\usepackage{fontawesome5}
+
 %\usepackage[style=verbose-ibid,backend=bibtex]{biblatex}
 %\addbibresource{main.bib}
 %\bibliography{main}
@@ -71,16 +77,15 @@
 
 
 % Title page
-\title{Introduction to parallel computing in {\tt R}}
+\title{Parallel data analysis with  {\tt R}}
 
 %\foottitle{foottitle} % optional, printed at the bottom of the slides, by default same as title, can be useful to rewrite when title has a newline for example
 \subtitle{EuroCC training} % optional subtitle
-\date{\formatdate{18}{1}{2024}}
+\date{\formatdate{18}{11}{2026}}
 \author{prof. dr. Janez Povh \\ dr. Tomas Martinović (Rcpp)}
 
-\institute{University of Ljubljana} 
-\institute{EuroHPC Competence Center, October 25, \monthyeardate{2024}}
-% Optional
+\institute{Rudolfovo - Science and Technology Centre Novo mesto} 
+\institute{EuroHPC Competence Center, November 18, \monthyeardate{2026}} % Optional
 
 % Biblatex
 % \usepackage[backend=biber, style=apa]{biblatex}
@@ -208,10 +213,10 @@
 	
 \end{frame}
 
-\begin{frame}{EuroCC2}
+\begin{frame}{EuroCC3}
 	\begin{itemize}
 		\item Network of EU Competence centers for HPC.\pp
-		\item All members of EuroHPC JU involved.\pp
+		\item Almost all members of EuroHPC JU involved.\pp
 		\item Training, support for industry, talent attraction,...
 	\end{itemize}
 \end{frame}
@@ -222,25 +227,25 @@
 \section{Introduction to R} 
 \subsection{Basics about R}
 
-\begin{frame}{What is R}
-	\begin{itemize}
-		\item Software for Statistical Data Analysis
-		\item  Based on S
-		\item Cores routines are written and Fortran
-		\item  Programming Environment
-		\item  Interpreted Language
-		\item  Data Storage, Analysis, Visualization
-		\item  Free and Open Source Software
-	\end{itemize}
+\begin{frame}{What is R?} 
+	\begin{itemize} 
+		\item A language and environment for statistical computing 
+		\item Data manipulation, analysis, modelling, and visualization 
+		\item Based on the S programming language 
+		\item Interpreted, interactive, and highly extensible \item Core components are written in R, C, and Fortran 
+		\item Free, open source, and cross-platform 
+	\end{itemize} 
+\end{frame} 
+
+\begin{frame}{Installing R} 
+	\begin{itemize} 
+		\item Current release: R 4.6.2, 29 October 2026 
+		\item Download from CRAN: \url{https://cran.r-project.org} 
+		\item Available for Linux, macOS, and Windows \item Windows and macOS users can install precompiled binaries 
+		\item Linux users may also install R using their package manager 
+	\end{itemize} 
 \end{frame}
 
-\begin{frame}{How to obtain R}
-	\begin{itemize}
-		\item R current version 4.4.1 (released June 2024).
-		\item \url{http://cran.r-project.org}
-		\item Binary/Windows executable code
-	\end{itemize}
-\end{frame}
 
 
 \begin{frame}{Pros and Cons}
@@ -306,7 +311,7 @@
 	
 	
 	\begin{figure}
-		\includegraphics[width=180pt]{images/rstudio1} 
+		\includegraphics[width=180pt]{images/rstudio2} 
 		\caption{\scriptsize \url{https://rstudio.com/products/rstudio/download/}}
 	\end{figure}
 \end{frame}
@@ -331,7 +336,7 @@
 
 \begin{frame}{Clone the data}
 	
-		Clone project from GITHUB \url{https://github.com/janezpovh/parallel-R-sep-24}
+		Clone project from GITHUB \url{https://github.com/janezpovh/parallel-R-nov-26}
 		\includegraphics[width=180pt]{images/git1} 
 		
 \end{frame}
@@ -708,8 +713,8 @@ Data_both_squares <- apply(Data_read[,-1],c(1,2),FUN = function(x) return(x^2))
 \begin{frame}[fragile]{{\tt lapply}}
 	
 	\begin{itemize}
-		\item {\tt lapply} function takes list, vector or data frame  as input and returns only list as output
-		\item {\tt sapply}  function takes list, vector or data frame  as input. It is similar to lapply function but returns only vector as output.
+		\item {\tt lapply} function takes list, vector, matrix or data frame  as linear input and returns only list as output
+		\item {\tt sapply}  function takes list, vector, matrix or data frame  as linear input. It is similar to lapply function but returns only vector as output.
 		
 	\end{itemize}
 	
@@ -795,9 +800,58 @@ time_foreach_sys=system.time({
 	}
 })
 time_foreach=toc()
+
+> time_for_foreach
+elapsed
+time_for       1.412
+time_foreach   1.294
 		\end{lstlisting}
 	\end{block}
 \end{frame}
+
+
+
+\begin{frame}[fragile]{Multisession (PSOCK) vs. Multicore (FORK)}
+	\begin{lstlisting}[language=R,basicstyle=\tiny]
+MULTISESSION / PSOCK               MULTICORE / FORK
+
+Main R                             Main R
+|                                  |
++-- start new R --> Worker 1       +-- fork --> Worker 1
++-- start new R --> Worker 2       +-- fork --> Worker 2
++-- start new R --> Worker 3       +-- fork --> Worker 3
++-- start new R --> Worker 4       +-- fork --> Worker 4
+
+Independent R sessions             Copies of current R process
+
+Objects transferred                Memory initially inherited
+by serialization                   via copy-on-write
+	\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}{When multisession (PSOCK)?}
+	Reasons for multisession (PSOCK):
+	\begin{itemize}
+		\item Portability: code works on Windows, Linux, macOS.
+		\item More predictable behavior with RStudio, connections, external libraries, etc.
+		\item Safety and reproducibility are more important than minimizing overhead.\pp 
+		
+		\item {\bf Cost:} objects have to be serialized and transferred to workers, so large data can create communication and memory overhead.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{When multicore (FORK)?}
+	Reasons for multicore (FORK):
+	\begin{itemize}
+		\item You are on Linux/macOS, not Windows.
+		\item Computations repeatedly use large, mostly read-only objects (copy-on-write principle).
+		\item You want fast worker creation and lower data-transfer overhead.
+		\item You know your code/libraries are fork-safe.	
+		\item {\bf Cost:} if you start changing big data objects, then data transfer is needed to workers. 
+	\end{itemize}
+\end{frame}
+
 
 
 
@@ -836,7 +890,7 @@ time_foreach=toc()
 		\item 
 		{\tt doParallel} is one such backend - it tells {\tt foreach} to use {\tt parallel}. 
 		\item There are others:  {\tt doFuture, doMPI} (another parallel backend, using message passing interface), {\tt doSnow} (another backend, using the {\tt  snow} package for creating parallel processes),...
-		\item By default, {\tt doParallel} uses multicore functionality on Unix-like systems and snow functionality on Windows.
+		\item By default, {\tt doParallel} uses multicore functionality on Unix-like systems and multisession  functionality on Windows.
 		
 	\end{itemize}
 \end{itemize}
@@ -848,21 +902,28 @@ time_foreach=toc()
 
 \begin{frame}[fragile]{ Parallel {\tt foreach-dopar} loop}
 Let us compute sums of all elements of $K$ random matrices of order  $N\times N$ using {\tt foreach ...dopar} from {\tt foreach} and {\tt doParallel}
-\begin{block}{{\tt for}}\scriptsize
+\begin{block}{{\tt foreach do} vs. {\tt foreach dopar}}\scriptsize
 	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
 N=3000
-set.seed(2021)
-sum_rand=rep(0,11);
-tic()
-foreach (i = c(1:12)) %dopar% {
-	A=randn(N,N)
+bench_1<-microbenchmark::microbenchmark(foreach (i = c(1:K)) %dopar% {
+	library(pracma)
+	A= rand(N,N)
 	sum_rand[i]=sum(A)
-}
-time_foreach_dopar=toc()
+},
+foreach (i = c(1:K)) %do% {
+	A=rand(N,N)
+	sum_rand[i]=sum(A)
+},times = 10
+)
+
+     min       lq     mean   median       uq      max neval
+821.7110 844.1936 922.3553 870.8398 898.5949 1404.979    10
+842.3294 846.7332 908.1153 857.0934 871.2040 1305.258    10
 	\end{lstlisting}
-\end{block}
 \pp
 Do you observe any difference?
+\end{block}
+
 \end{frame}
 
 
@@ -900,8 +961,8 @@ registerDoSEQ()  # alternative - register sequential mode
 		\end{block}
 		\item In linux: 
 		\begin{itemize}
-			\item the first option uses SNOW library and and utilizes {\tt parallel::parLapply()}
-			\item the second creates FORK cluster and uses MULTICORE library (it effectively utilizes {\tt parallel::mclapply()}). 
+			\item the first option uses SNOW library and utilizes multisession approach  {\tt parallel::parLapply()}
+			\item the second creates FORK cluster and uses multicore approach via (it effectively utilizes {\tt parallel::mclapply()}). 
 		\end{itemize}
 		\item In windows: both use SNOW. They create PSOCK clusters and basically utilize {\tt parallel::parLapply()}
 		
@@ -914,8 +975,8 @@ Let us compute sums of all elements of $K$ random matrices of order  $N\times N$
 \begin{block}{{\tt Option 1}}\scriptsize
 	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
 set.seed(2021)
-clust <- makeCluster(n_cores-1)  
-registerDoParallel(clust)  # use multicore, set to the number of our cores - needed for foerach dopar
+clust <- makeCluster(n_cores-1)  # use multisession, set to the number of parallel R sessions  
+registerDoParallel(clust)  
 getDoParName()
 sum_rand=rep(0,K-1);
 tic()
@@ -962,61 +1023,62 @@ registerDoSEQ()   #this registers sequential mode - equivalent
 \begin{frame}[fragile]{Timings}
 	Timings
 	\begin{verbatim}
-                               user.self  sys.self  elapsed
-time_for_sys                   4.16       0.50      4.93    
-time_for_each_sys              4.21       0.37      4.92    
-time_for_each_dopar_sys        4.11       0.55      4.98    
-time_for_each_dopar_1_sys      0.13       0.01      1.90    
-time_for_each_dopar_2_sys      0.11       0.00      1.80    
+                            user.self  sys.self  elapsed 
+time_for_sys                0.994      0.060     1.059    
+time_foreach_sys            1.148      0.046     1.201    
+time_foreachdopar_sys       0.045      0.011     0.692    
+time_foreachdopar_1_sys     0.036      0.010     0.647     
+time_foreachdopar_2_sys     0.015      0.012     0.617     
 	\end{verbatim}
 \end{frame}
 
 
-\begin{frame}{Library {\tt parallel}}
-\small 
-\begin{itemize}
-	\item encapsulates existing libraries {\tt multicore, snow}
-	\item {\tt multicore}  functionality supports multiple workers only on those operating systems that support the  {\bf fork} system call - this excludes Windows. 
-	
-	\item two ways of parallelization:
-	\begin{itemize}
-		\item 
-		The \CoG{socket} approach:  launches a new version of R on each core via networking (e.g. the same as if you connected to a remote server), but the connection is happening all on your own computer.
-		\begin{itemize}
-			\item pros: (i) Works on any system (including Windows); (ii) Each process on each node is unique so it can’t cross-contaminate.
-			\item cons: (i) Each process is unique so it will be slower
-			(ii) Things such as package loading need to be done in each process separately. Variables defined on your main version of R don’t exist on each core unless explicitly placed there.
-			(iii) More complicated to implement.
-		\end{itemize}
-		\item use {\tt parLapply, parSapply}
-		
-		
-	\end{itemize}
-	
-\end{itemize}
-
+\begin{frame}{Library \texttt{parallel}: Socket/Multisession Clusters} 
+	\footnotesize 
+	\begin{itemize} 
+		\item The \texttt{parallel} package incorporates functionality from \texttt{multicore} and \texttt{snow}. \pp 
+		\item The \CoG{socket-based/multisession} approach: 
+		\begin{itemize} 
+			\item starts separate R worker processes; 
+			\item communicates with workers through sockets; \item works on Linux, macOS, and Windows; 
+			\item can use workers on the local or remote computers. 
+		\end{itemize} \pp 
+		\item Advantages: 
+		\begin{itemize} 
+			\item Independent and isolated R sessions. 
+			\item More portable and generally safer than forking. 
+		\end{itemize} \pp 
+		\item Limitations: 
+		\begin{itemize} 
+			\item Data must be serialized and transferred to workers. 
+			\item Packages and objects may need to be loaded or exported. 
+			\item Worker creation and communication introduce overhead. 
+			\end{itemize} \pp 
+		\item Typical functions: \texttt{makeCluster()}, \texttt{parLapply()}, and \texttt{parSapply()}. 
+	\end{itemize} 
 \end{frame}
 
 
 
-\begin{frame}{Library {\tt parallel}}
-\small 
-\begin{itemize}
-	
-	\item The \CoG{forking} approach copies the entire current version of R and moves it to a new core.
-	\begin{itemize}
-		\item      (i) Faster than sockets.
-		(ii) Because it copies the existing version of R, your entire workspace exists in each process.
-		(iii) Easy to implement.
-		\item 
-		Cons (i) Only works on POSIX systems (Mac, Linux, Unix, BSD) and not Windows.
-		(ii) it can cause issues specifically with random number generation 
-		or when running in a GUI (such as RStudio). This doesn’t come up often.
-	\end{itemize}
-	\item use {\tt mclapply}
-\end{itemize}
-
-\end{frame}
+\begin{frame}{Library \texttt{parallel}: Fork-Based Parallelism} 
+	\footnotesize
+	\begin{itemize} 
+		\item The \CoG{forking} approach creates worker processes as copies of the current R process.  
+		\item Forked workers are used by \texttt{mclapply()}. \pp
+		\item Advantages: 
+		\begin{itemize} 
+			\item Workers are fast to create. 
+			\item Workers initially inherit the current R session, including loaded packages, functions, and objects. 
+			\item Memory pages are initially shared using \emph{copy-on-write}. 
+			\item It is particularly efficient for large, mostly read-only objects. 
+			\end{itemize} \pp \item Limitations: 
+			\begin{itemize} \item Forking is available on Unix-like systems, such as Linux and macOS, but not on Windows. 
+				\item Modified memory pages must be copied separately for each worker. 
+				\item Some libraries, connections, threads, and graphical interfaces may not be fork-safe. 
+				\item Parallel random-number generation must be handled carefully to ensure independent and reproducible streams. 
+			\end{itemize} 
+		\end{itemize} 
+	\end{frame}
 
 \begin{frame}[fragile]{ Parallel versions of {\tt lapply}}
 By using library {\tt parallel } and {\tt parSapply, mclapply}	compute sums of all elements of $K$ random matrices of order  $N\times N$. Create cluster!
@@ -1051,7 +1113,7 @@ time_mcLapply<-system.time({
 	sum_rand_mcLapply=mclapply(X=rep(N,K),FUN=mat_sum,mc.cores = n_cores)
 })
 
-# socketing
+# socketing/multisession
 clust <- makeCluster(n_cores, type="PSOCK")  
 time_parLapply<-system.time({
 	set.seed(2021)
@@ -1076,92 +1138,194 @@ stopCluster(clust)
 		
 		> times_apply[,1:3]
                    user.self  sys.self elapsed
-time_lapply        1.725    0.062   1.787
-time_sapply        1.782    0.052   1.832
-time_parLapply     0.006    0.001   0.977
-time_parSapply     0.005    0.000   0.961
-time_mcLapply      0.004    0.007   0.937	
+               user.self sys.self elapsed
+time_lapply        1.050    0.168   1.227
+time_sapply        1.021    0.171   1.201
+time_parLapply     0.002    0.002   0.568
+time_parSapply     0.002    0.001   0.570
+time_mcLapply      0.001    0.008   0.643
 \end{lstlisting}
 \end{block}
 \end{frame}
 
-\begin{frame}{Summary: libraries for shared memory parallelization in {\tt R}}
-\begin{itemize}
-	\item Parallel for-loop ({\tt foreach...dopar}). Cluster created by {\tt registerDoParallel(N)} and {\tt registerDoSEQ()}. Library {\tt foreach, doParalel} needed.
-	\item Parallel {\tt apply}: {\tt parLapply, parSapply, mcLapply} need library {parallel}. 
-\end{itemize}
-\end{frame}
-
-
-
 
 \begin{frame}[fragile]{Very parallelizable task}
-\begin{block}{Perfectly parallelizable computing task}\tiny
-	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
-# simple very parallel
-library(parallel)
-library(tictoc)
-
-f <- function(...) {
-	Sys.sleep(1) 
-	"DONE"
-}
-
-
-for (p in 1:8) {
-	t <- system.time(
-	mclapply(1:25, f, mc.cores = p)
-	)	
-	cat("workers =", p,
-	" elapsed =", t["elapsed"], "\n")
-}
-
-workers = 1  elapsed = 25.005 
-workers = 2  elapsed = 13.008 
-workers = 3  elapsed = 9.005 
-workers = 4  elapsed = 7.006 
-workers = 5  elapsed = 5.013 
-workers = 6  elapsed = 5.006 
-workers = 7  elapsed = 4.01 
-workers = 8  elapsed = 4.005 
-
-	\end{lstlisting}
-\end{block}
+	\begin{block}{Perfectly parallelizable computing task}\tiny
+		\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+			# simple very parallel
+			library(parallel)
+			library(tictoc)
+			
+			f <- function(...) {
+				Sys.sleep(1) 
+				"DONE"
+			}
+			
+			
+			for (p in 1:8) {
+				t <- system.time(
+				mclapply(1:25, f, mc.cores = p)
+				)	
+				cat("workers =", p,
+				" elapsed =", t["elapsed"], "\n")
+			}
+			
+			workers = 1  elapsed = 25.005 
+			workers = 2  elapsed = 13.008 
+			workers = 3  elapsed = 9.005 
+			workers = 4  elapsed = 7.006 
+			workers = 5  elapsed = 5.013 
+			workers = 6  elapsed = 5.006 
+			workers = 7  elapsed = 4.01 
+			workers = 8  elapsed = 4.005 
+			
+		\end{lstlisting}
+	\end{block}
 \end{frame}
 
 
 \begin{frame}[fragile]{Not so parallelizable task}
 	\begin{block}{Weakly parallelizable computing task}\tiny
 		\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
-# simple very parallel
-library(parallel)
-library(tictoc)
-
-g <- function(...) {
-	sum(rnorm(1e7))
-}
-
-for (p in 1:8) {
-	t <- system.time(
-	mclapply(1:25, g, mc.cores = p)
-	)	
-	cat("workers =", p,
-	" elapsed =", t["elapsed"], "\n")
-}
-
-
-workers = 1  elapsed = 10.431 
-workers = 2  elapsed = 5.524 
-workers = 3  elapsed = 5.634 
-workers = 4  elapsed = 5.667 
-workers = 5  elapsed = 5.624 
-workers = 6  elapsed = 5.886 
-workers = 7  elapsed = 5.594 
-workers = 8  elapsed = 5.575 
+			# simple very parallel
+			library(parallel)
+			library(tictoc)
+			
+			g <- function(...) {
+				sum(rnorm(1e7))
+			}
+			
+			for (p in 1:8) {
+				t <- system.time(
+				mclapply(1:25, g, mc.cores = p)
+				)	
+				cat("workers =", p,
+				" elapsed =", t["elapsed"], "\n")
+			}
+			
+			workers = 1  elapsed = 10.431 
+			workers = 2  elapsed = 5.524 
+			workers = 3  elapsed = 5.634 
+			workers = 4  elapsed = 5.667 
+			workers = 5  elapsed = 5.624 
+			workers = 6  elapsed = 5.886 
+			workers = 7  elapsed = 5.594 
+			workers = 8  elapsed = 5.575 
 			
 		\end{lstlisting}
 	\end{block}
 \end{frame}
+
+
+\begin{frame}{Summary: libraries for shared memory parallelization in {\tt R}}
+\begin{itemize}
+	\item Parallel for-loop ({\tt foreach...dopar}). Cluster created by {\tt registerDoParallel(N)} and {\tt registerDoSEQ()}. Library {\tt foreach, doParalel} needed. Type of parallelization: multisession (socket, with call makeCluster, stopCluster), multicore (fork) if use registerDoparalel, registerDoSEQ
+	\item Parallel {\tt apply}:  needs library {\tt parallel}. {\tt parLapply, parSapply} create multisession (socket), while mclapply creates multicore 
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{The \texttt{future} package?} 
+	\begin{block}{One interface -- different execution strategies} 
+\footnotesize 
+	\begin{itemize}
+		\item \texttt{future} separates \CoG{what to compute} from \CoG{how and where to compute it}. 
+		\item The same R code can run sequentially, with independent R sessions (\CoG{\texttt{multisession}}), or using forked processes (\CoG{\texttt{multicore}}). 
+		\item No need to explicitly create, manage, export data to, and stop clusters. 
+		\item Required globals and packages are automatically identified and made available to workers. 
+		\item Changing the parallelization strategy often requires changing only the \texttt{plan()}. 
+		\end{itemize} 
+		\begin{alertblock}{Main idea} \centering \textbf{Write the computation once -- choose the execution strategy separately.} 
+		\end{alertblock} 
+\pp
+		\begin{lstlisting}[language=R] 
+plan(sequential) # no parallelization 
+plan(multisession, workers = 4) # PSOCK workers 
+plan(multicore, workers = 4) # forked workers (Linux/macOS) 
+\end{lstlisting} 
+\end{block} 
+\end{frame}
+
+\begin{frame}[fragile]{Example with future}
+Run this function in serial, multisession and multicore mode.\\
+	
+\begin{lstlisting}[language=R]
+# One computationally expensive task
+f <- function(i) {
+	x <- rnorm(5e6)
+	c(task = i, statistic = mean(exp(x)))
+}
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}[fragile]{Run R scrip in three modes}
+	\hfill \href{https://github.com/janezpovh/parallel-R-nov-26/blob/main/code/Rscripts_part3_future.R} {
+	\beamergotobutton{\faCopy\ Open / Copy code}} 
+		\vspace{-1mm} \begin{block} 
+	{Run function in three modes} 
+	\tiny \begin{lstlisting}[ basicstyle=\color{blue}\tiny\ttfamily, language=R, showstringspaces=false ] 
+library(future)
+library(future.apply)
+n_tasks <- 8
+n_workers <- 2
+
+# One computationally expensive task
+f <- function(i) {
+	x <- rnorm(5e6)
+	c(task = i, statistic = mean(exp(x)))
+}
+
+# 1. Sequential
+plan(sequential)
+set.seed(2026)
+t_seq <- system.time({
+	res_seq <- future_lapply(
+	1:n_tasks, f,
+	future.seed = TRUE
+	)
+})
+	\end{lstlisting} 
+\end{block} 
+	
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]{Run R scrip in three modes - results}
+\begin{block}{Results} 
+ \begin{lstlisting}[ basicstyle=\color{blue}\tiny\ttfamily, language=R, showstringspaces=false ] 
+			> print(times)
+			sequential.elapsed   multisession.elapsed    multicore.elapsed 
+			2.878                2.007                   1.743 
+\end{lstlisting} 
+\end{block} 
+	
+\end{frame}
+
+
+
+
+\begin{frame}{Why library \texttt{future}?} 
+	\small 
+	\begin{itemize}
+		\item With \texttt{parallel} and \texttt{doParallel}, the code is more tightly connected to the way parallel workers are created: 
+		\begin{itemize} 
+			\item \texttt{makeCluster(), parLapply(), stopCluster()} 
+			\item \texttt{registerDoParallel(), \%dopar\%} 
+		\end{itemize} 
+		\item \texttt{future} separates two questions: 
+		\begin{itemize} 
+				\item {What} computation should be performed? 
+				\item {How and where} should it be performed? 
+		\end{itemize} 
+	\end{itemize} 
+\end{frame}
+
+
+
 
 
 \begin{frame}[fragile]{Cross-validation of models}
@@ -1182,7 +1346,6 @@ workers = 8  elapsed = 5.575
 %\section{Advanced and Big data management with R}
 %\subfile{sections/02_advanced data analysis with R}
 
-\begin{comment}
 	
 	
 \section{Parallelization with Rmpi}
@@ -1193,14 +1356,12 @@ workers = 8  elapsed = 5.575
 
 	
 	\begin{frame}[fragile]{What  is Rmpi}
-		\begin{itemize}
-			\item Rmpi library: Interface for MPI (Message Passing Interface) in R.
-			\item Enables parallel and distributed computing in the R programming language.
-			\item Facilitates communication and coordination between R processes across multiple nodes.
-			\item Particularly useful for parallelizing computationally intensive tasks like simulations or data processing.
-			\item Users can harness the power of parallel computing for improved performance in certain applications.
-			\item Latest version from Dec 2023, see \url{https://cran.r-project.org/web/packages/Rmpi/Rmpi.pdf}
-		\end{itemize}
+\begin{itemize} \footnotesize
+	\item \texttt{Rmpi}: an R interface to MPI (Message Passing Interface) for distributed-memory parallel computing. 
+	\item Allows multiple R processes to communicate using standard MPI operations such as point-to-point communication, broadcasting, gathering, and reduction. \item Particularly suitable for HPC clusters, where computations can be distributed across multiple CPU cores and multiple compute nodes. 
+	\item Supports both direct MPI execution and a manager--worker model, enabling parallel simulations, numerical computations, and distributed data processing. \item Requires an MPI implementation (e.g., Open MPI) and therefore must usually be compiled against the MPI environment available on the HPC system. 
+	\item Current CRAN version: \textbf{0.7-4.1} (November 2026); see \url{https://cran.r-project.org/web/packages/Rmpi/Rmpi.pdf}. 
+\end{itemize}
 	\end{frame}
 	
 	
@@ -1215,28 +1376,40 @@ workers = 8  elapsed = 5.575
 	
 		
 	
-	\begin{frame}[fragile]{Hello word example}
-		\begin{block}{Compute smallest eigenvalue of $n\times n$ random symmetric matrices}\tiny
-			\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
-				library(Rmpi)
-				n=30
-				size <- Rmpi::mpi.comm.size(0)
-				rank <- Rmpi::mpi.comm.rank(0)
-				host <- Rmpi::mpi.get.processor.name()
-				if (rank == 0){
-					cat("size ","rank ","host ","max_eigen_value\n")
-					cat(size,rank,host,"NaN\n")
-				} else {
-					where=getwd()
-					A=matrix(rnorm(n^2),nrow=n)
-					A=A+t(A)
-					a = max(eigen(A)$values)
-					cat(size,rank,host,a,"\n")    
-				}
-			\end{lstlisting}
-		\end{block}
-	\end{frame}
-	
+\begin{frame}[fragile]{Hello world example} 
+	% Button in the upper-right corner 
+	\hfill \href{https://github.com/janezpovh/parallel-R-nov-26/blob/main/code/Rmpi_master_slave.R} {
+		\beamergotobutton{\faCopy\ Open / Copy code}} 
+		\vspace{-1mm} \begin{block} 
+			{Compute largest eigenvalue of $n\times n$ random symmetric matrices} 
+			\tiny \begin{lstlisting}[ basicstyle=\color{blue}\tiny\ttfamily, language=R, showstringspaces=false ] 
+# Load Rmpi
+library(Rmpi)
+n <- 30
+# MPI information
+size <- Rmpi::mpi.comm.size(0)
+rank <- Rmpi::mpi.comm.rank(0)
+host <- Rmpi::mpi.get.processor.name()
+
+if (rank == 0) {
+	cat("size", "rank", "host", "max_eigen_value", "\n")
+	cat(size, rank, host, "NaN", "\n")	
+} else {
+	A <- matrix(rnorm(n^2), nrow = n)
+	A <- A + t(A)
+	a <- max(eigen(A, symmetric = TRUE, only.values = TRUE)$values)
+	cat(size, rank, host, a, "\n")
+}
+# Wait until all MPI processes have finished their work
+Rmpi::mpi.barrier(0)
+
+# Finish MPI cleanly
+Rmpi::mpi.finalize()			
+\end{lstlisting} 
+		\end{block} 
+\end{frame}
+
+
 	
 	\begin{frame}[fragile]{How to distribute this task across cluster}
 		\begin{itemize}
@@ -1248,25 +1421,63 @@ workers = 8  elapsed = 5.575
 	
 	
 	\begin{frame}[fragile]{How to distribute this task across cluster}
-		\begin{block}{Compute smallest eigenvalue of $n$ symmetric matrices of size $N\times N$}\tiny
-			\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
-				#!/bin/bash
-				#SBATCH --export=ALL,LD_PRELOAD=
-				#SBATCH --job-name Rmpi
-				#SBATCH --partition=qcpu --time=02:00
-				#SBATCH --nodes=2
-				#SBATCH --ntasks-per-node 36 ## maximum is 36
-				#SBATCH --output=logs/%x_%j.out
-				#SBATCH --account dd-24-88-015
-				
-				## not needed module load OpenMPI/4.1.4-GCC-11.3.0
-				module load R/4.1.0-foss-2021a
-				srun  Rscript Rmpi_master_slave.R			
+\hfill \href{https://github.com/janezpovh/parallel-R-nov-26/blob/main/code/Job_Rmpi_direct.sbatch} {
+	\beamergotobutton{\faCopy\ Open / Copy code}} 
+\vspace{-1mm} \begin{block} 
+	{SLURM job description} 
+\begin{lstlisting}[ basicstyle=\color{blue}\fontsize{3}{4}\ttfamily, language=R, showstringspaces=false ] 
+#!/bin/bash
+#SBATCH --export=ALL,LD_PRELOAD=
+#SBATCH --job-name Rmpi
+#SBATCH --partition=qcpu
+#SBATCH --time=02:00
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node 128 ## maximum is 128
+#SBATCH --output=logs/%x_%j.out
+#SBATCH --account atr-26-4
+module --force purge
+module load R/4.4.2-gfbf-2024a
+module load OpenMPI/5.0.3-GCC-13.3.0
+export R_LIBS_USER="$HOME/R/library/4.4"
+mkdir -p "$R_LIBS_USER"
+Rscript -e '
+.libPaths(c(Sys.getenv("R_LIBS_USER"), .libPaths()))
+if (!requireNamespace("Rmpi", quietly = TRUE)) {
+	cat("Rmpi not installed - installing...\n")
+	install.packages(
+	"Rmpi",
+	lib = Sys.getenv("R_LIBS_USER"),
+	repos = "https://cloud.r-project.org"
+	)
+}
+library(Rmpi)
+cat("Rmpi OK\n")
+'
+mpirun Rscript Rmpi_master_slave.R
 \end{lstlisting}
 		\end{block}
 	\end{frame}
 
-	\begin{frame}[fragile]{Go to Barbora}
+
+\begin{frame}[fragile]{Go to Karolina}
+\begin{lstlisting}[ basicstyle=\color{blue}\fontsize{3}{4}\ttfamily, language=R, showstringspaces=false ] 
+# Copy folder code  to Karolina
+scp -i ~/.ssh/id_ed25519 -r ~/parallel-R-nov-26/code it4i-jpovh@karolina.it4i.cz:~/
+
+# Go to Karolina
+ssh -i ~/.ssh/id_ed25519 it4i-jpovh@karolina.it4i.cz
+
+#Go to folder code and run
+
+sbatch Job_Rmpi_direct.sbatch
+
+# check results in file code/logs/*.out 
+
+\end{lstlisting}
+\end{frame}
+\begin{comment}
+
+	\begin{frame}[fragile]{Go to Barbora - old}
 	\begin{itemize}\small
 		\item Create directory\\ \verb|mkdir /home/rstudio/mnt/|
 		\item copy to it files\\\tiny  \verb|Job_Rmpi_master_slave.sbatch, Rmpi_master_slave.R|
@@ -1471,6 +1682,55 @@ int Mandel(double real, double im, int max_iter = 100)
 \end{frame}
 
 
+\begin{frame}{What is {\tt RcppParallel}}
+	\small
+	\begin{itemize}
+		\item Parallel algorithms for {\tt Rcpp} code, built on \CoG{Intel TBB}.
+		\item \CoG{Threads}, not processes: shared memory $\Rightarrow$ no data copying, no cluster set-up, low overhead.
+		\item You write a \CoG{Worker}: a {\tt struct} whose {\tt operator()(begin, end)} processes a range of indices.
+		\item {\tt parallelFor(begin, end, worker)} splits the range into chunks and runs them on a thread pool with \CoG{work stealing} (automatic load balancing).
+		\item {\tt RVector}/{\tt RMatrix}: thread-safe views of R memory allocated beforehand on the main thread.
+		\item \CoG{Rule:} no R API inside the worker (no {\tt Rcpp} objects, allocation, {\tt Rprintf}) -- R is single-threaded.
+		\item Threads set from R: {\tt setThreadOptions(numThreads = 4)}
+	\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]{Mandelbrot: key changes}
+\vspace{-0.6em}\footnotesize
+\CoG{1.} Load the package and its header:
+\tiny
+\begin{verbatim}
+cppFunction(depends = "RcppParallel", includes = "#include <RcppParallel.h>", ...)
+\end{verbatim}
+\vspace{-0.6em}\footnotesize
+\CoG{2.} Loop body moves into a \CoG{Worker}; each thread gets only rows {\tt [begin, end)}:
+\tiny
+\begin{verbatim}
+struct MandelWorker : public RcppParallel::Worker {
+  const RcppParallel::RVector<double> xs, ys;  // thread-safe views of inputs
+  RcppParallel::RMatrix<int> out;              // thread-safe view of output
+  void operator()(std::size_t begin, std::size_t end) {
+    for (std::size_t i = begin; i < end; i++)  // was: i = 0 .. resolution-1
+      ...                                      // inner loops unchanged
+  }
+};
+\end{verbatim}
+\vspace{-0.6em}\footnotesize
+\CoG{3.} Allocate output on the main thread, then replace the loop by {\tt parallelFor}:
+\tiny
+\begin{verbatim}
+IntegerMatrix out(x.size(), y.size());
+MandelWorker worker(x, y, out, max_iter);
+RcppParallel::parallelFor(0, x.size(), worker);
+\end{verbatim}
+\vspace{-0.6em}\footnotesize
+\CoG{4.} Set the number of threads from R:
+\tiny
+\begin{verbatim}
+RcppParallel::setThreadOptions(numThreads = 4)
+\end{verbatim}
+\end{frame}
 
 \end{document}
 
