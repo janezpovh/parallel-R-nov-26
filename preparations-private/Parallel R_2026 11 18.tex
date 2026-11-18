@@ -800,6 +800,11 @@ time_foreach_sys=system.time({
 	}
 })
 time_foreach=toc()
+
+> time_for_foreach
+elapsed
+time_for       1.412
+time_foreach   1.294
 		\end{lstlisting}
 	\end{block}
 \end{frame}
@@ -885,7 +890,7 @@ by serialization                   via copy-on-write
 		\item 
 		{\tt doParallel} is one such backend - it tells {\tt foreach} to use {\tt parallel}. 
 		\item There are others:  {\tt doFuture, doMPI} (another parallel backend, using message passing interface), {\tt doSnow} (another backend, using the {\tt  snow} package for creating parallel processes),...
-		\item By default, {\tt doParallel} uses multicore functionality on Unix-like systems and snow functionality on Windows.
+		\item By default, {\tt doParallel} uses multicore functionality on Unix-like systems and multisession  functionality on Windows.
 		
 	\end{itemize}
 \end{itemize}
@@ -897,21 +902,28 @@ by serialization                   via copy-on-write
 
 \begin{frame}[fragile]{ Parallel {\tt foreach-dopar} loop}
 Let us compute sums of all elements of $K$ random matrices of order  $N\times N$ using {\tt foreach ...dopar} from {\tt foreach} and {\tt doParallel}
-\begin{block}{{\tt for}}\scriptsize
+\begin{block}{{\tt foreach do} vs. {\tt foreach dopar}}\scriptsize
 	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
 N=3000
-set.seed(2021)
-sum_rand=rep(0,11);
-tic()
-foreach (i = c(1:12)) %dopar% {
-	A=randn(N,N)
+bench_1<-microbenchmark::microbenchmark(foreach (i = c(1:K)) %dopar% {
+	library(pracma)
+	A= rand(N,N)
 	sum_rand[i]=sum(A)
-}
-time_foreach_dopar=toc()
+},
+foreach (i = c(1:K)) %do% {
+	A=rand(N,N)
+	sum_rand[i]=sum(A)
+},times = 10
+)
+
+     min       lq     mean   median       uq      max neval
+821.7110 844.1936 922.3553 870.8398 898.5949 1404.979    10
+842.3294 846.7332 908.1153 857.0934 871.2040 1305.258    10
 	\end{lstlisting}
-\end{block}
 \pp
 Do you observe any difference?
+\end{block}
+
 \end{frame}
 
 
@@ -949,8 +961,8 @@ registerDoSEQ()  # alternative - register sequential mode
 		\end{block}
 		\item In linux: 
 		\begin{itemize}
-			\item the first option uses SNOW library and utilizes {\tt parallel::parLapply()}
-			\item the second creates FORK cluster and uses MULTICORE library (it effectively utilizes {\tt parallel::mclapply()}). 
+			\item the first option uses SNOW library and utilizes multisession approach  {\tt parallel::parLapply()}
+			\item the second creates FORK cluster and uses multicore approach via (it effectively utilizes {\tt parallel::mclapply()}). 
 		\end{itemize}
 		\item In windows: both use SNOW. They create PSOCK clusters and basically utilize {\tt parallel::parLapply()}
 		
@@ -963,8 +975,8 @@ Let us compute sums of all elements of $K$ random matrices of order  $N\times N$
 \begin{block}{{\tt Option 1}}\scriptsize
 	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
 set.seed(2021)
-clust <- makeCluster(n_cores-1)  
-registerDoParallel(clust)  # use multicore, set to the number of our cores - needed for foerach dopar
+clust <- makeCluster(n_cores-1)  # use multisession, set to the number of parallel R sessions  
+registerDoParallel(clust)  
 getDoParName()
 sum_rand=rep(0,K-1);
 tic()
@@ -1011,61 +1023,62 @@ registerDoSEQ()   #this registers sequential mode - equivalent
 \begin{frame}[fragile]{Timings}
 	Timings
 	\begin{verbatim}
-                               user.self  sys.self  elapsed
-time_for_sys                   4.16       0.50      4.93    
-time_for_each_sys              4.21       0.37      4.92    
-time_for_each_dopar_sys        4.11       0.55      4.98    
-time_for_each_dopar_1_sys      0.13       0.01      1.90    
-time_for_each_dopar_2_sys      0.11       0.00      1.80    
+                            user.self  sys.self  elapsed 
+time_for_sys                0.994      0.060     1.059    
+time_foreach_sys            1.148      0.046     1.201    
+time_foreachdopar_sys       0.045      0.011     0.692    
+time_foreachdopar_1_sys     0.036      0.010     0.647     
+time_foreachdopar_2_sys     0.015      0.012     0.617     
 	\end{verbatim}
 \end{frame}
 
 
-\begin{frame}{Library {\tt parallel}}
-\small 
-\begin{itemize}
-	\item encapsulates existing libraries {\tt multicore, snow}
-	\item {\tt multicore}  functionality supports multiple workers only on those operating systems that support the  {\bf fork} system call - this excludes Windows. 
-	
-	\item two ways of parallelization:
-	\begin{itemize}
-		\item 
-		The \CoG{socket} approach:  launches a new version of R on each core via networking (e.g. the same as if you connected to a remote server), but the connection is happening all on your own computer.
-		\begin{itemize}
-			\item pros: (i) Works on any system (including Windows); (ii) Each process on each node is unique so it can’t cross-contaminate.
-			\item cons: (i) Each process is unique so it will be slower
-			(ii) Things such as package loading need to be done in each process separately. Variables defined on your main version of R don’t exist on each core unless explicitly placed there.
-			(iii) More complicated to implement.
-		\end{itemize}
-		\item use {\tt parLapply, parSapply}
-		
-		
-	\end{itemize}
-	
-\end{itemize}
-
+\begin{frame}{Library \texttt{parallel}: Socket/Multisession Clusters} 
+	\footnotesize 
+	\begin{itemize} 
+		\item The \texttt{parallel} package incorporates functionality from \texttt{multicore} and \texttt{snow}. \pp 
+		\item The \CoG{socket-based/multisession} approach: 
+		\begin{itemize} 
+			\item starts separate R worker processes; 
+			\item communicates with workers through sockets; \item works on Linux, macOS, and Windows; 
+			\item can use workers on the local or remote computers. 
+		\end{itemize} \pp 
+		\item Advantages: 
+		\begin{itemize} 
+			\item Independent and isolated R sessions. 
+			\item More portable and generally safer than forking. 
+		\end{itemize} \pp 
+		\item Limitations: 
+		\begin{itemize} 
+			\item Data must be serialized and transferred to workers. 
+			\item Packages and objects may need to be loaded or exported. 
+			\item Worker creation and communication introduce overhead. 
+			\end{itemize} \pp 
+		\item Typical functions: \texttt{makeCluster()}, \texttt{parLapply()}, and \texttt{parSapply()}. 
+	\end{itemize} 
 \end{frame}
 
 
 
-\begin{frame}{Library {\tt parallel}}
-\small 
-\begin{itemize}
-	
-	\item The \CoG{forking} approach copies the entire current version of R and moves it to a new core.
-	\begin{itemize}
-		\item      (i) Faster than sockets.
-		(ii) Because it copies the existing version of R, your entire workspace exists in each process.
-		(iii) Easy to implement.
-		\item 
-		Cons (i) Only works on POSIX systems (Mac, Linux, Unix, BSD) and not Windows.
-		(ii) it can cause issues specifically with random number generation 
-		or when running in a GUI (such as RStudio). This doesn’t come up often.
-	\end{itemize}
-	\item use {\tt mclapply}
-\end{itemize}
-
-\end{frame}
+\begin{frame}{Library \texttt{parallel}: Fork-Based Parallelism} 
+	\footnotesize
+	\begin{itemize} 
+		\item The \CoG{forking} approach creates worker processes as copies of the current R process.  
+		\item Forked workers are used by \texttt{mclapply()}. \pp
+		\item Advantages: 
+		\begin{itemize} 
+			\item Workers are fast to create. 
+			\item Workers initially inherit the current R session, including loaded packages, functions, and objects. 
+			\item Memory pages are initially shared using \emph{copy-on-write}. 
+			\item It is particularly efficient for large, mostly read-only objects. 
+			\end{itemize} \pp \item Limitations: 
+			\begin{itemize} \item Forking is available on Unix-like systems, such as Linux and macOS, but not on Windows. 
+				\item Modified memory pages must be copied separately for each worker. 
+				\item Some libraries, connections, threads, and graphical interfaces may not be fork-safe. 
+				\item Parallel random-number generation must be handled carefully to ensure independent and reproducible streams. 
+			\end{itemize} 
+		\end{itemize} 
+	\end{frame}
 
 \begin{frame}[fragile]{ Parallel versions of {\tt lapply}}
 By using library {\tt parallel } and {\tt parSapply, mclapply}	compute sums of all elements of $K$ random matrices of order  $N\times N$. Create cluster!
@@ -1100,7 +1113,7 @@ time_mcLapply<-system.time({
 	sum_rand_mcLapply=mclapply(X=rep(N,K),FUN=mat_sum,mc.cores = n_cores)
 })
 
-# socketing
+# socketing/multisession
 clust <- makeCluster(n_cores, type="PSOCK")  
 time_parLapply<-system.time({
 	set.seed(2021)
@@ -1125,19 +1138,89 @@ stopCluster(clust)
 		
 		> times_apply[,1:3]
                    user.self  sys.self elapsed
-time_lapply        1.725    0.062   1.787
-time_sapply        1.782    0.052   1.832
-time_parLapply     0.006    0.001   0.977
-time_parSapply     0.005    0.000   0.961
-time_mcLapply      0.004    0.007   0.937	
+               user.self sys.self elapsed
+time_lapply        1.050    0.168   1.227
+time_sapply        1.021    0.171   1.201
+time_parLapply     0.002    0.002   0.568
+time_parSapply     0.002    0.001   0.570
+time_mcLapply      0.001    0.008   0.643
 \end{lstlisting}
 \end{block}
 \end{frame}
 
+
+\begin{frame}[fragile]{Very parallelizable task}
+	\begin{block}{Perfectly parallelizable computing task}\tiny
+		\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+			# simple very parallel
+			library(parallel)
+			library(tictoc)
+			
+			f <- function(...) {
+				Sys.sleep(1) 
+				"DONE"
+			}
+			
+			
+			for (p in 1:8) {
+				t <- system.time(
+				mclapply(1:25, f, mc.cores = p)
+				)	
+				cat("workers =", p,
+				" elapsed =", t["elapsed"], "\n")
+			}
+			
+			workers = 1  elapsed = 25.005 
+			workers = 2  elapsed = 13.008 
+			workers = 3  elapsed = 9.005 
+			workers = 4  elapsed = 7.006 
+			workers = 5  elapsed = 5.013 
+			workers = 6  elapsed = 5.006 
+			workers = 7  elapsed = 4.01 
+			workers = 8  elapsed = 4.005 
+			
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+
+
+\begin{frame}[fragile]{Not so parallelizable task}
+	\begin{block}{Weakly parallelizable computing task}\tiny
+		\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
+			# simple very parallel
+			library(parallel)
+			library(tictoc)
+			
+			g <- function(...) {
+				sum(rnorm(1e7))
+			}
+			
+			for (p in 1:8) {
+				t <- system.time(
+				mclapply(1:25, g, mc.cores = p)
+				)	
+				cat("workers =", p,
+				" elapsed =", t["elapsed"], "\n")
+			}
+			
+			workers = 1  elapsed = 10.431 
+			workers = 2  elapsed = 5.524 
+			workers = 3  elapsed = 5.634 
+			workers = 4  elapsed = 5.667 
+			workers = 5  elapsed = 5.624 
+			workers = 6  elapsed = 5.886 
+			workers = 7  elapsed = 5.594 
+			workers = 8  elapsed = 5.575 
+			
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+
+
 \begin{frame}{Summary: libraries for shared memory parallelization in {\tt R}}
 \begin{itemize}
 	\item Parallel for-loop ({\tt foreach...dopar}). Cluster created by {\tt registerDoParallel(N)} and {\tt registerDoSEQ()}. Library {\tt foreach, doParalel} needed. Type of parallelization: multisession (socket, with call makeCluster, stopCluster), multicore (fork) if use registerDoparalel, registerDoSEQ
-	\item Parallel {\tt apply}:  needs library {\tt parallel}. {\tt parLapply, parSapply} create multisession (socket), while mclapply cretaes multicore 
+	\item Parallel {\tt apply}:  needs library {\tt parallel}. {\tt parLapply, parSapply} create multisession (socket), while mclapply creates multicore 
 \end{itemize}
 \end{frame}
 
@@ -1243,87 +1326,6 @@ t_seq <- system.time({
 
 
 
-\begin{frame}[fragile]{Why library {\tt future}?} 
-	\begin{block}{Execution strategy}\scriptsize 
-		\begin{lstlisting}[ basicstyle=\color{blue}\tiny\ttfamily, language=R ] 
-			library(future) 
-			plan(sequential) # sequential 
-			plan(multisession, workers=4) # parallel R sessions 
-			plan(multicore, workers=4) # forked processes (Linux/macOS) 
-		\end{lstlisting} 
-	\end{block} 
-	\begin{center} \CoG{Algorithm stays the same -- only the execution plan changes.} 
-	\end{center} 
-\end{frame}
-
-
-\begin{frame}[fragile]{Very parallelizable task}
-\begin{block}{Perfectly parallelizable computing task}\tiny
-	\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
-# simple very parallel
-library(parallel)
-library(tictoc)
-
-f <- function(...) {
-	Sys.sleep(1) 
-	"DONE"
-}
-
-
-for (p in 1:8) {
-	t <- system.time(
-	mclapply(1:25, f, mc.cores = p)
-	)	
-	cat("workers =", p,
-	" elapsed =", t["elapsed"], "\n")
-}
-
-workers = 1  elapsed = 25.005 
-workers = 2  elapsed = 13.008 
-workers = 3  elapsed = 9.005 
-workers = 4  elapsed = 7.006 
-workers = 5  elapsed = 5.013 
-workers = 6  elapsed = 5.006 
-workers = 7  elapsed = 4.01 
-workers = 8  elapsed = 4.005 
-
-	\end{lstlisting}
-\end{block}
-\end{frame}
-
-
-\begin{frame}[fragile]{Not so parallelizable task}
-	\begin{block}{Weakly parallelizable computing task}\tiny
-		\begin{lstlisting}[basicstyle=\color{blue}\tiny\ttfamily,language=R,escapeinside=`']
-# simple very parallel
-library(parallel)
-library(tictoc)
-
-g <- function(...) {
-	sum(rnorm(1e7))
-}
-
-for (p in 1:8) {
-	t <- system.time(
-	mclapply(1:25, g, mc.cores = p)
-	)	
-	cat("workers =", p,
-	" elapsed =", t["elapsed"], "\n")
-}
-
-
-workers = 1  elapsed = 10.431 
-workers = 2  elapsed = 5.524 
-workers = 3  elapsed = 5.634 
-workers = 4  elapsed = 5.667 
-workers = 5  elapsed = 5.624 
-workers = 6  elapsed = 5.886 
-workers = 7  elapsed = 5.594 
-workers = 8  elapsed = 5.575 
-			
-		\end{lstlisting}
-	\end{block}
-\end{frame}
 
 
 \begin{frame}[fragile]{Cross-validation of models}
