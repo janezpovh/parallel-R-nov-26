@@ -9,9 +9,11 @@ cmax <- complex(real = 0.5, imaginary = 1)
 
 # Defining functions ----
 
+# Escape time: number of iterations n of z = z^2 + c (starting at z = 0)
+# until |z| > 2; max_iter if the point does not escape (it is in the set)
 mandelbrot <- function(c, max_iter = 100) {
-  z <- c
-  for (i in 1:max_iter-1) {
+  z <- 0
+  for (i in 1:max_iter) {
     z <- z ^ 2 + c
     if (abs(z) > 2) {
       return(i)
@@ -66,8 +68,8 @@ Rcpp::cppFunction(
            int max_iter = 100)
 {
 std::complex<double> c(real, im);
-std::complex<double> z = c;
-  for (int i=0; i< max_iter; i++){
+std::complex<double> z = 0;
+  for (int i=1; i <= max_iter; i++){
     z = z * z + c;
     if (std::abs(z) > 2) {
       return i;
@@ -134,17 +136,18 @@ IntegerMatrix Mandelbrot(
   IntegerMatrix out( resolution );
   for (int i=0; i < resolution; i++){
     for(int j=0; j < resolution; j++){
-      double helper = static_cast<double>(i);
-      double helper2 = static_cast<double>(j);
-      double fx = helper / resolution * real(dc);
-      double fy = helper2 / resolution * imag(dc);
+      double fx = static_cast<double>(i) / resolution * real(dc);
+      double fy = static_cast<double>(j) / resolution * imag(dc);
       std::complex<double> c(real(cmin) + fx, imag(cmin) + fy);
-      std::complex<double> z = c;
-      int iteration = -1;
-      while(abs(z) < 2 && iteration < max_iter)
+      std::complex<double> z = 0;
+      int iteration = max_iter;   // value for points in the set
+      for (int k = 1; k <= max_iter; k++)
       {
         z = z*z + c;
-        iteration++;
+        if (std::abs(z) > 2) {
+          iteration = k;
+          break;
+        }
       }
       out(i, j) = iteration;
     }
@@ -155,8 +158,8 @@ IntegerMatrix Mandelbrot(
 )
 
 # Compute results
-out_c <- Mandelbrot(resolution = 1000,
-                    max_iter = 100,
+out_c <- Mandelbrot(resolution = resolution,
+                    max_iter = max_iter,
                     cmin = cmin,
                     cmax = cmax)
 

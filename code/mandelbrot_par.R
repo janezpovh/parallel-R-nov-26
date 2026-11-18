@@ -1,7 +1,10 @@
 # Set arguments ----
 
-resolution <- as.integer(100) # Resolution of output image. This increases the exponentially x^2.
-max.iter <- as.integer(1000)
+# Same settings as in mandelbrot.R, so the results can be compared
+resolution <- as.integer(1000) # Resolution of output image. This increases the exponentially x^2.
+max.iter <- as.integer(100)
+cmin <- complex(real = -1.5, imaginary = -1)
+cmax <- complex(real = 0.5, imaginary = 1)
 processes <- 4
 
 # Load parallel library ----
@@ -13,6 +16,8 @@ if (Sys.info()["sysname"]=="Linux"){
 
 # Defining functions ----
 
+# Escape time: number of iterations n of z = z^2 + c (starting at z = 0)
+# until |z| > 2; max.iter if the point does not escape (it is in the set)
 mandelbrot <- function(c, max.iter = 100) {
   z <- 0
   for (i in 1:max.iter) {
@@ -21,52 +26,106 @@ mandelbrot <- function(c, max.iter = 100) {
       return(i)
     }
   }
-  return(-1)
+  return(max.iter)
 }
 
 # Prepare input pairs ----
 
-x <- seq(-2, 1, length.out = resolution)
-y <- seq(-1.5, 1.5, length.out = resolution)
+# Same grid as in mandelbrot.R
+dc <- cmax - cmin
+x <- Re(cmin) + ((1:resolution - 1) / resolution * Re(dc))
+y <- Im(cmin) + ((1:resolution - 1) / resolution * Im(dc))
 points <-
   outer(x, y, function(x, y)
     complex(real = x, imaginary = y))
 
+out_parapply <- parApply(cl,
+                         X = points,
+                         MARGIN = c(1, 2),
+                         FUN = mandelbrot,
+                         max.iter = max.iter)
+
+
+# Visualize ----
+
+# Plotly solution
+plotly::plot_ly(z = t(out_parapply),
+                type = "heatmap")
+
+
+# Parallel solution in C++ with RcppParallel ----
+# RcppParallel wraps Intel TBB (bundled with the package, nothing else to
+# install). You write a 'Worker' whose operator()(begin, end) processes a
+# range of rows; parallelFor() splits the rows into chunks and schedules them
+# on a thread pool with work stealing (automatic load balancing).
+# Important: no R API calls inside the worker - the R interpreter is
+# single-threaded. RMatrix/RVector are thread-safe accessors to R memory
+# allocated beforehand on the main thread.
+
+Rcpp::cppFunction(
+  depends = "RcppParallel",
+  includes = "#include <RcppParallel.h>\n#include <complex>",
+  code = "
+IntegerMatrix MandelbrotRcppPar(NumericVector x, NumericVector y,
+                                int max_iter = 100, int grain_size = 1)
+{
+  struct MandelWorker : public RcppParallel::Worker {
+    const RcppParallel::RVector<double> xs, ys;   // inputs
+    RcppParallel::RMatrix<int> out;               // output
+    const int max_iter;
+
+    MandelWorker(const NumericVector x, const NumericVector y,
+                 IntegerMatrix out, int max_iter)
+      : xs(x), ys(y), out(out), max_iter(max_iter) {}
+
+    // Compute rows [begin, end)
+    void operator()(std::size_t begin, std::size_t end) {
+      for (std::size_t i = begin; i < end; i++) {
+        for (std::size_t j = 0; j < ys.length(); j++) {
+          std::complex<double> c(xs[i], ys[j]);
+          std::complex<double> z(0.0, 0.0);
+          int res = max_iter;   // value for points in the set
+          for (int k = 1; k <= max_iter; k++) {
+            z = z * z + c;
+            if (std::abs(z) > 2.0) { res = k; break; }
+          }
+          out(i, j) = res;
+        }
+      }
+    }
+  };
+
+  IntegerMatrix out(x.size(), y.size());   // allocated on the main thread
+  MandelWorker worker(x, y, out, max_iter);
+  RcppParallel::parallelFor(0, x.size(), worker, grain_size);
+  return out;
+}
+")
+
+# Number of threads is set from R (default: all cores)
+RcppParallel::setThreadOptions(numThreads = processes)
+
+out_rcpppar <- MandelbrotRcppPar(x, y, max_iter = max.iter)
+
+# Check results correctness
+all.equal(out_parapply, out_rcpppar)
+
+# Compare 1 thread with 'processes' threads
 print(microbenchmark::microbenchmark(
   par_apply = parApply(cl,
            X = points,
            MARGIN = c(1, 2),
-           FUN = mandelbrot)
+           FUN = mandelbrot,
+           max.iter = max.iter),
+  rcpp_parallel_1 = {
+    RcppParallel::setThreadOptions(numThreads = 1)
+    MandelbrotRcppPar(x, y, max.iter)
+  },
+  rcpp_parallel = {
+    RcppParallel::setThreadOptions(numThreads = processes)
+    MandelbrotRcppPar(x, y, max.iter)
+  },
+  times = 5
 ))
 
-out_parapply <- parApply(cl,
-                         X = points,
-                         MARGIN = c(1, 2),
-                         FUN = mandelbrot)
-
-
 stopCluster(cl)
-# Visualize ----
-
-# Plotly solution
-plotly::plot_ly(z = t(out_for),
-                type = "heatmap")
-
-
-Rcpp::cppFunction(
-"
-int Mandel(double real, double im, int max_iter=100)
-{
-std::complex<double> c(real, im);
-std::complex<double> z=c;
-  for (int i=0;i < max_iter;i++){
-    z=z*z+c;
-    if (std::abs(z) > 2){
-      return i;
-    }
-  }
-  return max_iter;
-}
-"  
-  
-)
