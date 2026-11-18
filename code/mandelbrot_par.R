@@ -29,6 +29,29 @@ mandelbrot <- function(c, max.iter = 100) {
   return(max.iter)
 }
 
+# Plot helper ----
+# - colours change on a log scale: most points escape within a few iterations,
+#   with linearly spaced colours they would all look the same
+# - points in the set (value max_iter) are left empty and drawn black
+# - axes in real coordinates with equal aspect ratio
+plot_mandelbrot <- function(out, x, y, max_iter) {
+  z <- out
+  z[out == max_iter] <- NA
+  lo <- min(z, na.rm = TRUE)
+  hi <- max(z, na.rm = TRUE)
+  cols <- colorRampPalette(c("#000764", "#206BCB", "#EDFFFF", "#FFAA00", "#7A1E00"))(32)
+  pos <- (exp(seq(log(lo), log(hi), length.out = length(cols))) - lo) / (hi - lo)
+  plotly::plot_ly(x = x, y = y, z = t(z), type = "heatmap",
+                  colorscale = data.frame(pos, cols),
+                  colorbar = list(title = "Iterations"),
+                  hovertemplate = "c = %{x:.3f} %{y:+.3f}i<br>iterations: %{z}<extra></extra>") |>
+    plotly::layout(plot_bgcolor = "black",
+                   xaxis = list(title = "Re(c)", showgrid = FALSE, zeroline = FALSE,
+                                constrain = "domain"),
+                   yaxis = list(title = "Im(c)", showgrid = FALSE, zeroline = FALSE,
+                                scaleanchor = "x", constrain = "domain"))
+}
+
 # Prepare input pairs ----
 
 # Same grid as in mandelbrot.R
@@ -49,8 +72,7 @@ out_parapply <- parApply(cl,
 # Visualize ----
 
 # Plotly solution
-plotly::plot_ly(z = t(out_parapply),
-                type = "heatmap")
+plot_mandelbrot(out_parapply, x, y, max.iter)
 
 
 # Parallel solution in C++ with RcppParallel ----
